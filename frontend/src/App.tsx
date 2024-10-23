@@ -1,16 +1,56 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
-// object
+import { socket } from "./socket/socket.ts";
 
-// type Person = {
-// name : string;
-// age? : number;  // ? means optional
-//}
-//
+function App() {
+  const [isConnected, setIsConnected] = useState<Boolean>(socket.connected);
+  const [getMessage, setMessage] = useState<String>("hello world");
 
-const App: React.FC = () => {
-  return <div className="App">hello world</div>;
-};
+  useEffect(() => {
+    function onConnect() {
+      setIsConnected(true);
+    }
+
+    function onDisconnect() {
+      setIsConnected(false);
+      setMessage("you have diconnected");
+    }
+
+    function onMessage(message: String) {
+      setMessage(message);
+    }
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("message", onMessage);
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+    };
+  }, []);
+
+  console.log("isconnected:", isConnected);
+  return (
+    <>
+      <button
+        onClick={() => {
+          socket.connect();
+        }}
+      >
+        Connect
+      </button>
+      <button
+        onClick={() => {
+          socket.disconnect();
+        }}
+      >
+        Disconnect
+      </button>
+      <h1>{getMessage}</h1>
+      {isConnected ? <h2>true</h2> : <h2>false</h2>}
+    </>
+  );
+}
 
 export default App;
