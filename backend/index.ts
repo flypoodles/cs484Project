@@ -1,21 +1,12 @@
 import express from "express";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-
+import { User, RoomInfo } from "./type";
 const app = express();
 const server = createServer(app);
 const users: Map<string, User> = new Map();
 const rooms: Map<string, RoomInfo> = new Map();
 
-interface User {
-  id: string;
-  username: string;
-}
-
-interface RoomInfo {
-  roomNumber: string;
-  playerInfo: User[];
-}
 const io = new Server(server, {
   cors: {
     origin: ["http://127.0.0.1:5173", "http://localhost:5173"],
@@ -51,32 +42,66 @@ io.on("connection", (socket) => {
   socket.emit("onConnect", newUser);
   socket.emit("message", "you have connected to the server!");
 
-  socket.on("create", (socketId, extra) => {
+  socket.on("createRoom", () => {
+    // picking a unique room number
     let roomNumber = Math.random().toString(36).substring(2, 7);
     while (rooms.has(roomNumber)) {
       roomNumber = Math.random().toString(36).substring(2, 7);
     }
 
-    const currentUser = users.get(socketId);
+    const currentUser = users.get(socket.id);
     console.log("creating a room for", currentUser);
     console.log("room number: ", roomNumber);
 
     if (currentUser == undefined) {
       socket.emit("error", "unable to find the user");
+      return;
     }
+
     const newRoom: RoomInfo = {
       roomNumber: roomNumber,
-      playerInfo: [users.get(socketId) as User],
+      host: users.get(socket.id) as User,
+      guest: null,
     };
     rooms.set(roomNumber, newRoom);
     socket.join(roomNumber);
 
-    extra();
     socket.emit("newRoom", newRoom);
   });
 
+  socket.on("Join Room Request", (roomNumber: string) => {
+    if (!rooms.has(roomNumber)) {
+      socket.emit("Join Error", "room not found");
+      return;
+    }
+
+    const theRoom: RoomInfo = rooms.get(roomNumber) as RoomInfo;
+
+    if (theRoom.guest != null) {
+      socket.emit("Join Error", "room is full");
+      return;
+    }
+    const currentUser: User | undefined = users.get(socket.id);
+    console.log("joining a room for", currentUser);
+    console.log("room number: ", roomNumber);
+
+    if (currentUser == undefined) {
+      socket.emit("Join Error", "unable to find the user");
+      return;
+    }
+
+    theRoom.guest = currentUser;
+    rooms.set(roomNumber, theRoom);
+
+    socket.join(roomNumber);
+
+    socket.to(roomNumber).emit("User Joined", theRoom);
+    socket.emit("Joined", theRoom);
+  });
+
   socket.on("disconnect", () => {
-    console.log("a user disconnected");
+    console.log("a user disconnected :", users.get(socket.id));
+    rooms.delete(users.get(socket.id)?.roomNumber);
     users.delete(socket.id);
   });
 });

@@ -9,8 +9,3 @@ export interface RoomInfo {
   host: User;
   guest: User | null;
 }
-
-export interface Message {
-  sender: User;
-  message: string;
-}

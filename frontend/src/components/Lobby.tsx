@@ -1,38 +1,56 @@
 import { User, RoomInfo } from "../type.ts";
-import React, { useEffect, useState } from "react";
+import React, { ReactEventHandler, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 interface LobbyProp {
   user: User;
   socket: Socket;
   setRoom: React.Dispatch<React.SetStateAction<RoomInfo | null>>;
+  setHost: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const Lobby: React.FC<LobbyProp> = ({ user, socket, setRoom }: LobbyProp) => {
+const Lobby: React.FC<LobbyProp> = ({
+  user,
+  socket,
+  setRoom,
+  setHost,
+}: LobbyProp) => {
   const [joinScreen, setJoinScreen] = useState<boolean>(false);
 
   const [roomNumber, setRoomNumber] = useState<string>("");
+  const [joinError, setJoinError] = useState<boolean>(false);
+  const [getError, setError] = useState<string>("");
   const handleCreate = () => {
-    console.log("creating a room1");
-    socket.emit("create", socket.id, () => {
-      console.log("hello");
-    });
+    socket.emit("createRoom");
 
-    console.log("creating a room2");
     socket.on("newRoom", (room: RoomInfo) => {
       console.log("you have joined Room : ", room.roomNumber);
 
+      setHost(true);
       setRoom(room);
     });
 
     console.log("creating a room");
   };
   const handleJoin = (e: React.FormEvent) => {
-    console.log(`join room ${e.target}`);
+    e.preventDefault();
+    socket.emit("Join Room Request", roomNumber);
+
+    socket.on("Joined", (room: RoomInfo) => {
+      setHost(false);
+      setRoom(room);
+      alert("joined");
+    });
+
+    socket.on("Join Error", (err: string) => {
+      setJoinError(true);
+      setError(err);
+    });
   };
 
   return (
     <>
       <h1>Welcome {user.username}</h1>
 
+      {joinError && <h1> Join error: {getError}</h1>}
       {joinScreen ? (
         <form onSubmit={handleJoin}>
           <label htmlFor="productId"></label>
