@@ -5,9 +5,16 @@ import { Server } from "socket.io";
 const app = express();
 const server = createServer(app);
 const users: Map<string, User> = new Map();
+const rooms: Map<string, RoomInfo> = new Map();
+
 interface User {
   id: string;
   username: string;
+}
+
+interface RoomInfo {
+  roomNumber: string;
+  playerInfo: User[];
 }
 const io = new Server(server, {
   cors: {
@@ -22,12 +29,7 @@ io.use((socket, next) => {
   }
 
   console.log("a user connected");
-  console.log("username: ", socket.handshake.auth.username);
-  socket.username = username;
-  users.set(socket.id, {
-    id: socket.id,
-    username: socket.username,
-  });
+  console.log("username: ", username);
 
   next();
 });
@@ -40,13 +42,41 @@ server.listen(3000, () => {
 });
 
 io.on("connection", (socket) => {
-  io.emit("message", "you have connected to the server!");
+  const newUser: User = {
+    id: socket.id,
+    username: socket.handshake.auth.username,
+  };
+  users.set(socket.id, newUser);
 
-  io.emit("users", Array.from(users.values()));
+  socket.emit("onConnect", newUser);
+  socket.emit("message", "you have connected to the server!");
+
+  socket.on("create", (socketId, extra) => {
+    let roomNumber = Math.random().toString(36).substring(2, 7);
+    while (rooms.has(roomNumber)) {
+      roomNumber = Math.random().toString(36).substring(2, 7);
+    }
+
+    const currentUser = users.get(socketId);
+    console.log("creating a room for", currentUser);
+    console.log("room number: ", roomNumber);
+
+    if (currentUser == undefined) {
+      socket.emit("error", "unable to find the user");
+    }
+    const newRoom: RoomInfo = {
+      roomNumber: roomNumber,
+      playerInfo: [users.get(socketId) as User],
+    };
+    rooms.set(roomNumber, newRoom);
+    socket.join(roomNumber);
+
+    extra();
+    socket.emit("newRoom", newRoom);
+  });
 
   socket.on("disconnect", () => {
     console.log("a user disconnected");
     users.delete(socket.id);
-    io.emit("users", Array.from(users.values()));
   });
 });

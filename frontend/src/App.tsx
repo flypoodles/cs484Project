@@ -1,40 +1,38 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import { User } from "./type.ts";
+import { User, RoomInfo } from "./type.ts";
 import { socket } from "./socket/socket.ts";
-import UserList from "./components/userList.tsx";
+import Lobby from "./components/Lobby.tsx";
 function App() {
   const [isConnected, setIsConnected] = useState<boolean>(socket.connected);
   const [getUserName, setUserName] = useState<string>("");
+  const [getUser, setUser] = useState<User | null>(null);
   const [getMessage, setMessage] = useState<string>("hello world");
-  const [getUsers, setUsers] = useState<User[]>([]);
+  const [getRoom, setRoom] = useState<RoomInfo | null>(null);
   useEffect(() => {
-    function onConnect() {
+    function onConnect(user: User) {
       setIsConnected(true);
+      setUser(user);
     }
 
     function onDisconnect() {
       setIsConnected(false);
       setMessage("you have diconnected");
+      setRoom(null);
     }
 
-    function onMessage(message: String) {
+    function onMessage(message: string) {
       setMessage(message);
     }
 
-    function onUsers(users: User[]) {
-      console.log("users\n");
-      setUsers(users);
-    }
-
-    socket.on("connect", onConnect);
+    socket.on("onConnect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("message", onMessage);
-    socket.on("users", onUsers);
+
     return () => {
-      socket.off("connect", onConnect);
+      socket.off("onConnect", onConnect);
       socket.off("disconnect", onDisconnect);
-      socket.off("users", onUsers);
+
       socket.off("message", onMessage);
     };
   }, []);
@@ -75,7 +73,12 @@ function App() {
       )}
 
       <h1>{getMessage}</h1>
-      {isConnected ? <UserList users={getUsers} /> : <h2>Not connected</h2>}
+      {isConnected && getUser == null && (
+        <h1> Error: User object is null while connected</h1>
+      )}
+      {isConnected && getRoom == null && getUser != null && (
+        <Lobby user={getUser as User} socket={socket} setRoom={setRoom} />
+      )}
     </>
   );
 }
