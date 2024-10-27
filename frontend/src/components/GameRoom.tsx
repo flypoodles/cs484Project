@@ -1,15 +1,14 @@
 import { User, RoomInfo } from "../type.ts";
 import React, { ReactNode, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
+import Chat from "./Chat.tsx";
 interface roomProp {
-  user: User;
   socket: Socket;
   room: RoomInfo;
   ishost: boolean;
   setRoom: React.Dispatch<React.SetStateAction<RoomInfo | null>>;
 }
 const GameRoom: React.FC<roomProp> = ({
-  user,
   socket,
   room,
   ishost,
@@ -26,14 +25,22 @@ const GameRoom: React.FC<roomProp> = ({
     room.guest == null ? true : false
   );
 
+  const handleLeaveRoom = () => {
+    socket.emit("leave room");
+  };
   socket.on("User Joined", (room: RoomInfo) => {
     setRoom(room);
     setWaiting(false);
     setOpponent(ishost ? room.guest : room.host);
   });
+
   return (
     <>
-      <h1>welcome to the room {user.username} </h1>
+      {getPlayer != null ? (
+        <h1>welcome to the room {getPlayer.username} </h1>
+      ) : (
+        <h1>Error: player has no username</h1>
+      )}
       {isWaiting ? (
         <h1>Waiting for the other player to connect</h1>
       ) : (
@@ -46,6 +53,16 @@ const GameRoom: React.FC<roomProp> = ({
       )}
 
       {isWaiting && <h1>Use this Number to connect: {room.roomNumber}</h1>}
+
+      {!isWaiting && getPlayer != null && getOpponent != null && (
+        <Chat
+          user={getPlayer}
+          opponent={getOpponent}
+          socket={socket}
+          room={room}
+        />
+      )}
+      <button onClick={handleLeaveRoom}> leave Room</button>
     </>
   );
 };

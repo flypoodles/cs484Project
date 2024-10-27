@@ -1,16 +1,19 @@
-import { User, Message } from "../type.ts";
+import { User, Message, RoomInfo } from "../type.ts";
 import React, { ReactNode, useState } from "react";
 import { Socket } from "socket.io-client";
+
 interface MessageProp {
   user: User;
   opponent: User;
   socket: Socket;
+  room: RoomInfo;
 }
 
 const Chat: React.FC<MessageProp> = ({
   user,
   opponent,
   socket,
+  room,
 }: MessageProp) => {
   const [curMessage, setCurmessage] = useState<string>("");
 
@@ -24,25 +27,31 @@ const Chat: React.FC<MessageProp> = ({
     return components;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     alert(curMessage);
     const newMessage: Message = { sender: user, message: curMessage };
-    // Todo: socket emit
-    setMessageLog(messageLog.concat(newMessage));
+    socket.emit("chat message", room.roomNumber, newMessage);
+
     setCurmessage("");
   };
 
   // Todo : Receive message using socket on
 
+  socket.on("chat message", (message: Message) => {
+    setMessageLog(messageLog.concat(message));
+  });
+
   return (
     <>
+      <h1>Chat with {opponent.username}</h1>
       <ol>{renderList()}</ol>
 
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           value={curMessage}
-          placeholder="Enter room number"
+          placeholder="type message"
           onChange={(e) => setCurmessage(e.target.value)}
           required
         />

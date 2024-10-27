@@ -37,7 +37,6 @@ const Lobby: React.FC<LobbyProp> = ({
     socket.on("Joined", (room: RoomInfo) => {
       setHost(false);
       setRoom(room);
-      alert("joined");
     });
 
     socket.on("Join Error", (err: string) => {

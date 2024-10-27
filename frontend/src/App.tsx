@@ -21,6 +21,9 @@ function App() {
       setIsConnected(false);
       setMessage("you have diconnected");
       setRoom(null);
+      setUser(null);
+      setisHost(false);
+      setUserName("");
     }
 
     function onMessage(message: string) {
@@ -74,13 +77,12 @@ function App() {
             />
           ) : (
             <GameRoom
-              user={getUser as User}
               socket={socket}
               room={getRoom}
               ishost={isHost}
               setRoom={setRoom}
             />
-          )}{" "}
+          )}
         </>
       ) : (
         <form onSubmit={handleConnection}>

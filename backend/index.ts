@@ -1,10 +1,14 @@
 import express from "express";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-import { User, RoomInfo } from "./type";
+import { User, RoomInfo, Message } from "./type";
 const app = express();
 const server = createServer(app);
+
+// stores all the users connected to the websocket(socket.io)
 const users: Map<string, User> = new Map();
+
+// stores all rooms in the socket
 const rooms: Map<string, RoomInfo> = new Map();
 
 const io = new Server(server, {
@@ -36,12 +40,16 @@ io.on("connection", (socket) => {
   const newUser: User = {
     id: socket.id,
     username: socket.handshake.auth.username,
+    roomNumber: "",
   };
   users.set(socket.id, newUser);
 
   socket.emit("onConnect", newUser);
   socket.emit("message", "you have connected to the server!");
 
+  socket.on("chat message", (roomNumber: string, msg: Message) => {
+    io.to(roomNumber).emit("chat message", msg);
+  });
   socket.on("createRoom", () => {
     // picking a unique room number
     let roomNumber = Math.random().toString(36).substring(2, 7);
@@ -57,6 +65,8 @@ io.on("connection", (socket) => {
       socket.emit("error", "unable to find the user");
       return;
     }
+    currentUser.roomNumber = roomNumber;
+    users.set(socket.id, currentUser);
 
     const newRoom: RoomInfo = {
       roomNumber: roomNumber,
@@ -90,6 +100,10 @@ io.on("connection", (socket) => {
       return;
     }
 
+    // assign user with the room number
+    currentUser.roomNumber = roomNumber;
+    users.set(socket.id, currentUser);
+
     theRoom.guest = currentUser;
     rooms.set(roomNumber, theRoom);
 
@@ -99,9 +113,28 @@ io.on("connection", (socket) => {
     socket.emit("Joined", theRoom);
   });
 
+  const endRoomConnection = (user: User) => {
+    if (user.roomNumber != "") {
+      const theRoom = rooms.get(user.roomNumber) as RoomInfo;
+      io.in(user.roomNumber).disconnectSockets();
+      rooms.delete(user.roomNumber);
+
+      users.delete(theRoom.host.id);
+      if (theRoom.guest != null) {
+        users.delete(theRoom.guest.id);
+      }
+    }
+  };
+  socket.on("leave room", () => {
+    const user = users.get(socket.id) as User;
+    endRoomConnection(user);
+  });
+
   socket.on("disconnect", () => {
     console.log("a user disconnected :", users.get(socket.id));
-    rooms.delete(users.get(socket.id)?.roomNumber);
+    // make sure to room request after disconnect
+    const user = users.get(socket.id) as User;
+    endRoomConnection(user);
     users.delete(socket.id);
   });
 });
