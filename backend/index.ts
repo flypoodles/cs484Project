@@ -36,17 +36,19 @@ server.listen(3000, () => {
   console.log("server running at http://localhost:3000");
 });
 
+// TODO: Try to move some of the logics insde io to http request instead
 io.on("connection", (socket) => {
+  // upon connection, create a new user and sent it to the client socket.
   const newUser: User = {
     id: socket.id,
     username: socket.handshake.auth.username,
     roomNumber: "",
   };
   users.set(socket.id, newUser);
-
   socket.emit("onConnect", newUser);
   socket.emit("message", "you have connected to the server!");
 
+  // this is used for private chat between two sockets inside the room
   socket.on("chat message", (roomNumber: string, msg: Message) => {
     io.to(roomNumber).emit("chat message", msg);
   });
@@ -76,6 +78,7 @@ io.on("connection", (socket) => {
     rooms.set(roomNumber, newRoom);
     socket.join(roomNumber);
 
+    // send the newRoom back to the client socket
     socket.emit("newRoom", newRoom);
   });
 
@@ -100,20 +103,23 @@ io.on("connection", (socket) => {
       return;
     }
 
-    // assign user with the room number
+    // assign user with the room number and updated the room list
     currentUser.roomNumber = roomNumber;
     users.set(socket.id, currentUser);
-
     theRoom.guest = currentUser;
     rooms.set(roomNumber, theRoom);
 
+    // join the room with the roomNumber
     socket.join(roomNumber);
 
+    // tell the socket that created the room a user has joined
     socket.to(roomNumber).emit("User Joined", theRoom);
+    // send the newRoom back to the client socket
     socket.emit("Joined", theRoom);
   });
 
   const endRoomConnection = (user: User) => {
+    // if anyone leave or disconnect from the room, every socket will disconnect
     if (user.roomNumber != "") {
       const theRoom = rooms.get(user.roomNumber) as RoomInfo;
       io.in(user.roomNumber).disconnectSockets();
@@ -125,6 +131,8 @@ io.on("connection", (socket) => {
       }
     }
   };
+
+  // handle request to leave the room.
   socket.on("leave room", () => {
     const user = users.get(socket.id) as User;
     endRoomConnection(user);

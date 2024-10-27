@@ -34,6 +34,7 @@ const Lobby: React.FC<LobbyProp> = ({
     e.preventDefault();
     socket.emit("Join Room Request", roomNumber);
 
+    // if the user tried to join a room, the user socket will receive this.
     socket.on("Joined", (room: RoomInfo) => {
       setHost(false);
       setRoom(room);

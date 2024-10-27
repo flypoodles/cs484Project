@@ -18,6 +18,8 @@ const Chat: React.FC<MessageProp> = ({
   const [curMessage, setCurmessage] = useState<string>("");
 
   const [messageLog, setMessageLog] = useState<Message[]>([]);
+
+  // render all the chat messages
   const renderList = () => {
     const components: ReactNode = messageLog.map((message) => (
       <li>
@@ -35,8 +37,6 @@ const Chat: React.FC<MessageProp> = ({
 
     setCurmessage("");
   };
-
-  // Todo : Receive message using socket on
 
   socket.on("chat message", (message: Message) => {
     setMessageLog(messageLog.concat(message));
