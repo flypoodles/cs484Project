@@ -1,6 +1,6 @@
 import { PieceType } from "../type";
 
-const defaultBoard = "RHEGKGEHR/8/1C5C/P1P1P1P1P/8/8/p1p1p1p1p/1c5c/8/rhegkgehr b 0";
+const defaultBoard = "RHEGKGEHR/8/1C5C/P1P1P1P1P/8/8/p1p1p1p1p/1c5c/8/rhegkgehr r 0";
 
 function isCharNumber(c: string) {
   return c >= '0' && c <= '9';
@@ -59,13 +59,10 @@ export function comparePiece(piece1: PieceType, piece2: PieceType) {
 }
 
 export function copyBoard(board: string[][]) {
-  console.log("inside copyBoard")
   const newBoard: string[][] = []
   for (const row of board) {
     const newRow = [...row]
     newBoard.push(newRow)
   }
-  console.log(newBoard)
-
   return newBoard
 }

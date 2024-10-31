@@ -20,3 +20,9 @@ export interface PieceType {
   row: number; // 0 -> 9
   col: number; // 0 -> 8
 }
+
+export interface Move {
+  piece: string;
+  from: [number, number] // row, col
+  to: [number, number] // row, col
+}

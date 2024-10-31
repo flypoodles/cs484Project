@@ -2,11 +2,10 @@ import { useEffect, useState } from "react"
 
 import Piece from "../components/Piece.tsx"
 import "./styles/Board.css"
-import { PieceType } from "../type.ts"
-import { copyBoard } from "./utils.ts"
+import { Move, PieceType } from "../type.ts"
 
-export default function Board({board, setBoard} : {
-  board: string[][], setBoard: React.Dispatch<React.SetStateAction<string[][]>>
+export default function Board({board, setMove} : {
+  board: string[][], setMove: React.Dispatch<React.SetStateAction<Move | null>>
 }) { // in future, Board will get input fen-str and generate corresponding position
 
   const [firstPiece, setFirstPiece] = useState<PieceType>({piece: "none", row: -1, col: -1})
@@ -18,13 +17,10 @@ export default function Board({board, setBoard} : {
 
   useEffect(() => {
     if (finalPiece.piece !== "none") {
-      const newBoard = copyBoard(board)
       console.log(`move ${firstPiece.piece} from ${firstPiece.row}-${firstPiece.col} to ${finalPiece.row}-${finalPiece.col}`)
-      newBoard[finalPiece.row][finalPiece.col] = firstPiece.piece
-      newBoard[firstPiece.row][firstPiece.col] = ""
+      setMove({piece: firstPiece.piece, from: [firstPiece.row, firstPiece.col], to: [finalPiece.row, finalPiece.col]})
       setFirstPiece({piece: "none", row: -1, col: -1})
       setFinalPiece({piece: "none", row: -1, col: -1})
-      setBoard(newBoard)
     }
   }, [finalPiece])
 
