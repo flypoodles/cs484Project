@@ -14,3 +14,9 @@ export interface Message {
   sender: User;
   message: string;
 }
+
+export interface PieceType {
+  piece: string;
+  row: number; // 0 -> 9
+  col: number; // 0 -> 8
+}

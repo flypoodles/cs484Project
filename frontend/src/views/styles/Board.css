@@ -1,0 +1,8 @@
+#board {
+  position: relative;
+  background-image: url("/chineseChessPlate.png");
+  height: 600px;
+  width: 600px;
+  background-position: center;
+  background-size: contain;
+}
