@@ -2,15 +2,17 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import { User, RoomInfo } from "./type.ts";
 import { socket } from "./socket/socket.ts";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Lobby from "./components/Lobby.tsx";
 import GameRoom from "./components/GameRoom.tsx";
+import Welcome from "./components/Welcome.tsx";
 function App() {
   const [isConnected, setIsConnected] = useState<boolean>(socket.connected);
   const [getUserName, setUserName] = useState<string>("");
   const [getUser, setUser] = useState<User | null>(null);
   const [getMessage, setMessage] = useState<string>("hello world");
   const [getRoom, setRoom] = useState<RoomInfo | null>(null);
-  const [isHost, setisHost] = useState<boolean>(false);
+
   useEffect(() => {
     function onConnect(user: User) {
       setIsConnected(true);
@@ -22,7 +24,6 @@ function App() {
       setMessage("you have diconnected");
       setRoom(null);
       setUser(null);
-      setisHost(false);
       setUserName("");
     }
 
@@ -55,48 +56,34 @@ function App() {
   };
   return (
     <>
-      {isConnected ? (
-        <>
-          <button
-            onClick={() => {
-              socket.disconnect();
-            }}
-          >
-            Disconnect
-          </button>
-          <h1>{getMessage}</h1>
-          {getUser == null && (
-            <h1> Error: User object is null while connected</h1>
-          )}
-          {getRoom == null ? (
-            <Lobby
-              user={getUser as User}
-              socket={socket}
-              setRoom={setRoom}
-              setHost={setisHost}
-            />
-          ) : (
-            <GameRoom
-              socket={socket}
-              room={getRoom}
-              ishost={isHost}
-              setRoom={setRoom}
-            />
-          )}
-        </>
-      ) : (
-        <form onSubmit={handleConnection}>
-          <label htmlFor="productId"></label>
-          <input
-            type="text"
-            value={getUserName}
-            placeholder="Enter userName"
-            onChange={(e) => setUserName(e.target.value)}
-            required
-          />
-          <button type="submit">Connect</button>
-        </form>
-      )}
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Welcome
+                userNameState={{ getUserName, setUserName }}
+                socket={socket}
+              />
+            }
+          ></Route>
+
+          <Route
+            path="/Lobby"
+            element={<Lobby socket={socket} setRoom={setRoom} user={getUser} />}
+          ></Route>
+          <Route
+            path="/GameRoom"
+            element={
+              <GameRoom
+                socket={socket}
+                roomState={{ room: getRoom, setRoom }}
+                userState={{ user: getUser, setUser }}
+              />
+            }
+          ></Route>
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }

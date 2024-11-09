@@ -1,32 +1,46 @@
 import { User, RoomInfo } from "../type.ts";
 import React, { ReactEventHandler, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 interface LobbyProp {
-  user: User;
+  user: User | null;
   socket: Socket;
   setRoom: React.Dispatch<React.SetStateAction<RoomInfo | null>>;
-  setHost: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const Lobby: React.FC<LobbyProp> = ({
-  user,
-  socket,
-  setRoom,
-  setHost,
-}: LobbyProp) => {
+const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
   const [joinScreen, setJoinScreen] = useState<boolean>(false);
 
   const [roomNumber, setRoomNumber] = useState<string>("");
   const [joinError, setJoinError] = useState<boolean>(false);
   const [getError, setError] = useState<string>("");
+  const navigate = useNavigate();
+
   const handleCreate = () => {
     socket.emit("createRoom");
 
-    socket.on("newRoom", (room: RoomInfo) => {
-      console.log("you have joined Room : ", room.roomNumber);
+    socket.on(
+      "newRoom",
+      (
+        opponent: User | null,
+        player: User,
+        roomNumber: string,
+        turn: number
+      ) => {
+        console.log("you have joined Room : ", roomNumber);
 
-      setHost(true);
-      setRoom(room);
-    });
+        const room: RoomInfo = {
+          opponent: opponent,
+          player: player,
+          roomNumber: roomNumber,
+          turn: turn,
+        };
+        setRoom(room);
+
+        // redirect to gameroom
+        console.log("navagating");
+        navigate("/GameRoom");
+      }
+    );
 
     console.log("creating a room");
   };
@@ -35,10 +49,26 @@ const Lobby: React.FC<LobbyProp> = ({
     socket.emit("Join Room Request", roomNumber);
 
     // if the user tried to join a room, the user socket will receive this.
-    socket.on("Joined", (room: RoomInfo) => {
-      setHost(false);
-      setRoom(room);
-    });
+    socket.on(
+      "Joined",
+      (
+        opponent: User | null,
+        player: User,
+        roomNumber: string,
+        turn: number
+      ) => {
+        const room: RoomInfo = {
+          opponent: opponent,
+          player: player,
+          roomNumber: roomNumber,
+          turn: turn,
+        };
+        setRoom(room);
+
+        // redirect to gameroom
+        navigate("/GameRoom");
+      }
+    );
 
     socket.on("Join Error", (err: string) => {
       setJoinError(true);
@@ -48,22 +78,36 @@ const Lobby: React.FC<LobbyProp> = ({
 
   return (
     <>
-      <h1>Welcome {user.username}</h1>
+      <button
+        onClick={() => {
+          socket.disconnect();
+          // redirect back to the welcome screen
+        }}
+      >
+        Disconnect
+      </button>
+
+      {user == null ? (
+        <h1>Error: user is null</h1>
+      ) : (
+        <h1>Welcome {user.username}</h1>
+      )}
 
       {joinError && <h1> Join error: {getError}</h1>}
       {joinScreen ? (
-        <form onSubmit={handleJoin}>
-          <label htmlFor="productId"></label>
-          <input
-            type="text"
-            value={roomNumber}
-            placeholder="Enter room number"
-            onChange={(e) => setRoomNumber(e.target.value)}
-            required
-          />
-          <button onClick={() => setJoinScreen(false)}>Back</button>
-          <button type="submit">Join</button>
-        </form>
+        <>
+          <form onSubmit={handleJoin}>
+            <input
+              type="text"
+              value={roomNumber}
+              placeholder="Enter room number"
+              onChange={(e) => setRoomNumber(e.target.value)}
+              required
+            />
+            <button onClick={() => setJoinScreen(false)}>Back</button>
+            <button type="submit">Join</button>
+          </form>
+        </>
       ) : (
         <>
           <button type="button" onClick={() => handleCreate()}>

@@ -2,67 +2,103 @@ import { User, RoomInfo } from "../type.ts";
 import React, { ReactNode, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import Chat from "./Chat.tsx";
+
+interface RoomState {
+  room: RoomInfo | null;
+  setRoom: React.Dispatch<React.SetStateAction<RoomInfo | null>>;
+}
+interface userState {
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+}
 interface roomProp {
   socket: Socket;
-  room: RoomInfo;
-  ishost: boolean;
-  setRoom: React.Dispatch<React.SetStateAction<RoomInfo | null>>;
+  roomState: RoomState;
+  userState: userState;
 }
 const GameRoom: React.FC<roomProp> = ({
   socket,
-  room,
-  ishost,
-  setRoom,
+  roomState,
+  userState,
 }: roomProp) => {
-  const [getPlayer, setPlayer] = useState<User | null>(
-    ishost ? room.host : room.guest
-  );
+  const [getPlayer, setPlayer] = useState<User>(room.player);
 
   const [getOpponent, setOpponent] = useState<User | null>(
-    ishost ? room.guest : room.host
+    roomState.room != null ? roomState.room.opponent : null
   );
+
   const [isWaiting, setWaiting] = useState<boolean>(
-    room.guest == null ? true : false
+    // this will first check to make sure roomState is not null.
+    // If it is not null, it will execute the nested ternary expression.
+    // Else it will return false.
+    // the inner ternary check if the opponent is null. The opponent can be null if there is only one player in the room.
+    roomState.room != null
+      ? roomState.room.opponent == null
+        ? true
+        : false
+      : false
   );
 
   const handleLeaveRoom = () => {
     socket.emit("leave room");
   };
-  socket.on("User Joined", (room: RoomInfo) => {
-    setRoom(room);
-    setWaiting(false);
-    setOpponent(ishost ? room.guest : room.host);
-  });
+  socket.on(
+    "User Joined",
+    (opponent: User | null, player: User, roomNumber: string, turn: number) => {
+      const room: RoomInfo = {
+        opponent: opponent,
+        player: player,
+        roomNumber: roomNumber,
+        turn: turn,
+      };
+      roomState.setRoom(room);
+      setWaiting(false);
+      setOpponent(room.opponent);
+    }
+  );
 
   return (
     <>
-      {getPlayer != null ? (
-        <h1>welcome to the room {getPlayer.username} </h1>
-      ) : (
-        <h1>Error: player has no username</h1>
-      )}
-      {isWaiting ? (
-        <h1>Waiting for the other player to connect</h1>
-      ) : (
+      {roomState.room != null && userState.user != null ? (
         <>
-          <h1>other player has connected</h1>
-          {getOpponent != null && (
-            <h1> your Opponent: {getOpponent.username}</h1>
+          {getPlayer != null ? (
+            <h1>welcome to the room {roomState.room.player.username} </h1>
+          ) : (
+            <h1>Error: player has no username</h1>
           )}
+          {isWaiting ? (
+            <h1>Waiting for the other player to connect</h1>
+          ) : (
+            <>
+              <h1>other player has connected</h1>
+              {getOpponent != null ? (
+                <h1> your Opponent: {getOpponent.username}</h1>
+              ) : (
+                <h1>
+                  {" "}
+                  Error: opponent is null even after other play has joined
+                </h1>
+              )}
+            </>
+          )}
+
+          {isWaiting && (
+            <h1>Use this Number to connect: {roomState.room.roomNumber}</h1>
+          )}
+
+          {!isWaiting && getPlayer != null && getOpponent != null && (
+            <Chat
+              user={getPlayer}
+              opponent={getOpponent}
+              socket={socket}
+              room={roomState.room}
+            />
+          )}
+          <button onClick={handleLeaveRoom}> leave Room</button>
         </>
+      ) : (
+        <h1>Error some thing is wrong</h1>
       )}
-
-      {isWaiting && <h1>Use this Number to connect: {room.roomNumber}</h1>}
-
-      {!isWaiting && getPlayer != null && getOpponent != null && (
-        <Chat
-          user={getPlayer}
-          opponent={getOpponent}
-          socket={socket}
-          room={room}
-        />
-      )}
-      <button onClick={handleLeaveRoom}> leave Room</button>
     </>
   );
 };

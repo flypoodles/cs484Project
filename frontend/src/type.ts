@@ -4,10 +4,12 @@ export interface User {
   roomNumber: string;
 }
 
+// this is different from server
 export interface RoomInfo {
   roomNumber: string;
-  host: User;
-  guest: User | null;
+  opponent: User | null;
+  player: User;
+  turn: number;
 }
 
 export interface Message {
@@ -23,6 +25,6 @@ export interface PieceType {
 
 export interface Move {
   piece: string;
-  from: [number, number] // row, col
-  to: [number, number] // row, col
+  from: [number, number]; // row, col
+  to: [number, number]; // row, col
 }

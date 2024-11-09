@@ -6,8 +6,8 @@ export interface User {
 
 export interface RoomInfo {
   roomNumber: string;
-  host: User;
-  guest: User | null;
+  player: User[];
+  turn: 0;
 }
 
 export interface Message {

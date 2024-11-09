@@ -72,14 +72,14 @@ io.on("connection", (socket) => {
 
     const newRoom: RoomInfo = {
       roomNumber: roomNumber,
-      host: users.get(socket.id) as User,
-      guest: null,
+      player: [currentUser],
+      turn: 0,
     };
     rooms.set(roomNumber, newRoom);
     socket.join(roomNumber);
 
     // send the newRoom back to the client socket
-    socket.emit("newRoom", newRoom);
+    socket.emit("newRoom", null, newRoom.player[0], roomNumber, 0);
   });
 
   socket.on("Join Room Request", (roomNumber: string) => {
@@ -89,33 +89,32 @@ io.on("connection", (socket) => {
     }
 
     const theRoom: RoomInfo = rooms.get(roomNumber) as RoomInfo;
-
-    if (theRoom.guest != null) {
+    if (theRoom.player.length > 1) {
       socket.emit("Join Error", "room is full");
       return;
     }
-    const currentUser: User | undefined = users.get(socket.id);
-    console.log("joining a room for", currentUser);
-    console.log("room number: ", roomNumber);
 
+    const currentUser: User | undefined = users.get(socket.id);
     if (currentUser == undefined) {
       socket.emit("Join Error", "unable to find the user");
       return;
     }
 
+    console.log("joining a room for", currentUser);
+    console.log("room number: ", roomNumber);
+
     // assign user with the room number and updated the room list
     currentUser.roomNumber = roomNumber;
-    users.set(socket.id, currentUser);
-    theRoom.guest = currentUser;
-    rooms.set(roomNumber, theRoom);
+    theRoom.player.push(currentUser);
 
     // join the room with the roomNumber
     socket.join(roomNumber);
 
-    // tell the socket that created the room a user has joined
-    socket.to(roomNumber).emit("User Joined", theRoom);
+    socket
+      .to(roomNumber)
+      .emit("User Joined", theRoom.player[1], theRoom.player[0], roomNumber, 0);
     // send the newRoom back to the client socket
-    socket.emit("Joined", theRoom);
+    socket.emit("Joined", theRoom.player[0], theRoom.player[1], roomNumber, 0);
   });
 
   const endRoomConnection = (user: User) => {
@@ -125,10 +124,7 @@ io.on("connection", (socket) => {
       io.in(user.roomNumber).disconnectSockets();
       rooms.delete(user.roomNumber);
 
-      users.delete(theRoom.host.id);
-      if (theRoom.guest != null) {
-        users.delete(theRoom.guest.id);
-      }
+      theRoom.player.forEach((player: User) => users.delete(user.id));
     }
   };
 
