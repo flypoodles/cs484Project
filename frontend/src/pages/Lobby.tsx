@@ -20,19 +20,13 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
 
     socket.on(
       "newRoom",
-      (
-        opponent: User | null,
-        player: User,
-        roomNumber: string,
-        turn: number
-      ) => {
+      (opponent: User | null, player: User, roomNumber: string) => {
         console.log("you have joined Room : ", roomNumber);
 
         const room: RoomInfo = {
           opponent: opponent,
           player: player,
           roomNumber: roomNumber,
-          turn: turn,
         };
         console.log(room);
         setRoom(room);
@@ -52,17 +46,11 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
     // if the user tried to join a room, the user socket will receive this.
     socket.on(
       "Joined",
-      (
-        opponent: User | null,
-        player: User,
-        roomNumber: string,
-        turn: number
-      ) => {
+      (opponent: User | null, player: User, roomNumber: string) => {
         const room: RoomInfo = {
           opponent: opponent,
           player: player,
           roomNumber: roomNumber,
-          turn: turn,
         };
         setRoom(room);
 

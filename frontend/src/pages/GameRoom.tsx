@@ -47,12 +47,11 @@ const GameRoom: React.FC<roomProp> = ({
   };
   socket.on(
     "User Joined",
-    (opponent: User | null, player: User, roomNumber: string, turn: number) => {
+    (opponent: User | null, player: User, roomNumber: string) => {
       const room: RoomInfo = {
         opponent: opponent,
         player: player,
         roomNumber: roomNumber,
-        turn: turn,
       };
       roomState.setRoom(room);
       setWaiting(false);

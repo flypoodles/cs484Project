@@ -9,7 +9,6 @@ export interface RoomInfo {
   roomNumber: string;
   opponent: User | null;
   player: User;
-  turn: number;
 }
 
 export interface Message {
