@@ -1,5 +1,5 @@
-import { copyBoard, loadBoard } from "./utils";
-import Board from "./Board";
+import { copyBoard, loadBoard } from "../components/utils";
+import Board from "../components/Board";
 import { useEffect, useState } from "react";
 import { Move } from "../type";
 

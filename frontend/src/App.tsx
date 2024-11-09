@@ -7,9 +7,9 @@ import Lobby from "./pages/Lobby.tsx";
 import GameRoom from "./pages/GameRoom.tsx";
 import Welcome from "./pages/Welcome.tsx";
 function App() {
-  const [getUserName, setUserName] = useState<string>("");
-  const [getUser, setUser] = useState<User | null>(null);
-  const [getRoom, setRoom] = useState<RoomInfo | null>(null);
+  const [userName, setUserName] = useState<string>("");
+  const [user, setUser] = useState<User | null>(null);
+  const [room, setRoom] = useState<RoomInfo | null>(null);
   const navigate = useNavigate();
   useEffect(() => {
     // socket will call this function if connected
@@ -47,7 +47,7 @@ function App() {
           path="/"
           element={
             <Welcome
-              userNameState={{ getUserName, setUserName }}
+              userNameState={{ userName, setUserName }}
               socket={socket}
             />
           }
@@ -55,15 +55,15 @@ function App() {
 
         <Route
           path="/Lobby"
-          element={<Lobby socket={socket} setRoom={setRoom} user={getUser} />}
+          element={<Lobby socket={socket} setRoom={setRoom} user={user} />}
         ></Route>
         <Route
           path="/GameRoom"
           element={
             <GameRoom
               socket={socket}
-              roomState={{ room: getRoom, setRoom }}
-              userState={{ user: getUser, setUser }}
+              roomState={{ room: room, setRoom } as {room: RoomInfo, setRoom: React.Dispatch<React.SetStateAction<RoomInfo>>}}
+              userState={{ user: user, setUser }}
             />
           }
         ></Route>
