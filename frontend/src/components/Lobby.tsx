@@ -34,6 +34,7 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
           roomNumber: roomNumber,
           turn: turn,
         };
+        console.log(room);
         setRoom(room);
 
         // redirect to gameroom

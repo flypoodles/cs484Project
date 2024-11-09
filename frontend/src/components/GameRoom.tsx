@@ -2,7 +2,7 @@ import { User, RoomInfo } from "../type.ts";
 import React, { ReactNode, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import Chat from "./Chat.tsx";
-
+import { useNavigate } from "react-router-dom";
 interface RoomState {
   room: RoomInfo | null;
   setRoom: React.Dispatch<React.SetStateAction<RoomInfo | null>>;
@@ -21,7 +21,10 @@ const GameRoom: React.FC<roomProp> = ({
   roomState,
   userState,
 }: roomProp) => {
-  const [getPlayer, setPlayer] = useState<User>(room.player);
+  const navigate = useNavigate();
+  const [getPlayer, setPlayer] = useState<User>(
+    (roomState.room as RoomInfo).player
+  );
 
   const [getOpponent, setOpponent] = useState<User | null>(
     roomState.room != null ? roomState.room.opponent : null

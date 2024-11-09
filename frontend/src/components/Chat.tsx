@@ -21,8 +21,8 @@ const Chat: React.FC<MessageProp> = ({
 
   // render all the chat messages
   const renderList = () => {
-    const components: ReactNode = messageLog.map((message) => (
-      <li>
+    const components: ReactNode = messageLog.map((message, i) => (
+      <li key={i}>
         {message.sender.username} : {message.message}
       </li>
     ));
@@ -31,7 +31,6 @@ const Chat: React.FC<MessageProp> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(curMessage);
     const newMessage: Message = { sender: user, message: curMessage };
     socket.emit("chat message", room.roomNumber, newMessage);
 
