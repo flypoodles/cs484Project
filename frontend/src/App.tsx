@@ -12,10 +12,12 @@ function App() {
   const [getRoom, setRoom] = useState<RoomInfo | null>(null);
   const navigate = useNavigate();
   useEffect(() => {
+    // socket will call this function if connected
     function onConnect(user: User) {
       setUser(user);
     }
 
+    // socket will call this function if disconnected
     function onDisconnect() {
       setRoom(null);
       setUser(null);

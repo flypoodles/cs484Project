@@ -82,12 +82,12 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
       <button
         onClick={() => {
           socket.disconnect();
-          // redirect back to the welcome screen
         }}
       >
         Disconnect
       </button>
 
+      {/* make sure that the user is not null as this point */}
       {user == null ? (
         <h1>Error: user is null</h1>
       ) : (

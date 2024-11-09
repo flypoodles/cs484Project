@@ -19,6 +19,7 @@ interface Props {
 const Welcome: FC<Props> = ({ userNameState, socket }) => {
   const navigate = useNavigate();
   const handleConnection = (e: React.FormEvent) => {
+    // after the user has typed in a username, the socket will establish connection with the server.
     e.preventDefault();
     socket.auth = { username: userNameState.getUserName };
     socket.connect();
