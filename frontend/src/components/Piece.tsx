@@ -40,6 +40,7 @@ export default function Piece({firstPiece, setFirstPiece, finalPiece, setFinalPi
 
   return (
     <div 
+      draggable
       onClick={handleClickPiece} 
       className={`${isDot? "dot" : "piece"} ${pieceSide} p-${piece.piece} ${(isVisible)? "p-visible" : ""}`} 
       style={{translate: `${59 * piece.col}px ${59 * piece.row + 9}px`}}

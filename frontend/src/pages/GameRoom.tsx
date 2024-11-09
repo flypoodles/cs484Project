@@ -1,7 +1,7 @@
 import { User, RoomInfo } from "../type.ts";
 import React, { ReactNode, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
-import Chat from "./Chat.tsx";
+import Chat from "../components/Chat.tsx";
 import { useNavigate } from "react-router-dom";
 interface RoomState {
   room: RoomInfo | null;

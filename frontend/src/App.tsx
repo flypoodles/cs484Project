@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import { User, RoomInfo } from "./type.ts";
 import { socket } from "./socket/socket.ts";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import Lobby from "./components/Lobby.tsx";
-import GameRoom from "./components/GameRoom.tsx";
-import Welcome from "./components/Welcome.tsx";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import Lobby from "./pages/Lobby.tsx";
+import GameRoom from "./pages/GameRoom.tsx";
+import Welcome from "./pages/Welcome.tsx";
 function App() {
   const [getUserName, setUserName] = useState<string>("");
   const [getUser, setUser] = useState<User | null>(null);
