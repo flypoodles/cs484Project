@@ -1,8 +1,9 @@
 import express from "express";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-import { User, RoomInfo, Message } from "./type";
+import { User, RoomInfo, Message, GameState } from "./type";
 import { endRoomConnection, roomEvent } from "./SocketRoomLogic.ts";
+import { invertFen, retrieveInformation, updateBoard } from "./util.ts";
 const app = express();
 const server = createServer(app);
 
@@ -55,6 +56,129 @@ io.on("connection", (socket) => {
   });
 
   roomEvent(io, socket, users, rooms);
+
+  socket.on("ready", () => {
+    const { user, room } = retrieveInformation(users, rooms, socket);
+
+    if (user == undefined || room == undefined) {
+      return;
+    }
+    // only one player is ready
+    if (room.readyStatus < 2) {
+      room.readyStatus++;
+      socket.to(room.roomNumber).emit("opponent ready");
+      return;
+    }
+
+    if (room.readyStatus > 2) {
+      throw new Error(" ready status greater than 2");
+    }
+
+    const colorAssignRandomNumber = Math.floor(Math.random() * 10);
+
+    const newGame: GameState = {
+      // board: String;
+      // turn: number;
+      // red: User;
+      // black: User;
+      board: "RHEGKGEHR/8/1C5C/P1P1P1P1P/8/8/p1p1p1p1p/1c5c/8/rhegkgehr",
+      turn: 0,
+      red: room.player.at(colorAssignRandomNumber % 2) as User,
+      black: room.player.at((colorAssignRandomNumber + 1) % 2) as User,
+    };
+    room.gameState = newGame;
+
+    // red always move on even number of turn.
+    // black always move on odd number of turn.
+
+    socket
+      .to(newGame.red.id)
+      .emit(
+        "start",
+        newGame.turn % 2 ? true : false,
+        newGame.turn,
+        "red",
+        newGame.board
+      );
+    socket
+      .to(newGame.black.id)
+      .emit(
+        "start",
+        newGame.turn % 2 ? false : true,
+        newGame.turn,
+        "black",
+        invertFen(newGame.board)
+      );
+  });
+
+  socket.on(
+    "move",
+    (
+      initialPosition: number[],
+      destination: number[],
+      piece: string,
+      playerFen: string
+    ) => {
+      const { user, room } = retrieveInformation(users, rooms, socket);
+
+      if (user == undefined || room == undefined) {
+        return;
+      }
+
+      const gameState = room.gameState as GameState;
+      if (playerFen !== gameState.board) {
+        socket.emit(
+          "error",
+          "the board received is different which means one of the player has cheated"
+        );
+      }
+
+      const validMove: boolean = true; // TODO:implement checking
+
+      const currentPlayer =
+        gameState.turn % 2 ? gameState.red : gameState.black;
+
+      if (currentPlayer.id != user.id) {
+        console.log("the player attempted to move not during their turn");
+        socket.emit(
+          "error",
+          "the player attempted to move not during their turn"
+        );
+      }
+
+      // export const updateBoard = (
+      //   fen: string,
+      //   initialPosition: number[],
+      //   destination: number[],
+      //   piece: string
+      // ) => {};
+
+      const newBoard: string = updateBoard(
+        gameState.board,
+        initialPosition,
+        destination,
+        piece
+      );
+      gameState.board = newBoard;
+      gameState.turn++;
+      socket
+        .to(gameState.red.id)
+        .emit(
+          "end turn",
+          gameState.turn % 2 ? true : false,
+          gameState.turn,
+          gameState.board
+        );
+      socket
+        .to(gameState.black.id)
+        .emit(
+          "end turn",
+          gameState.turn % 2 ? false : true,
+          gameState.turn,
+          invertFen(gameState.board)
+        );
+    }
+  );
 
   socket.on("disconnect", () => {
     console.log("a user disconnected :", users.get(socket.id));

@@ -1,5 +1,5 @@
 import { Socket, Server } from "socket.io";
-import { User, RoomInfo, Message } from "./type";
+import { User, RoomInfo } from "./type";
 
 export const roomEvent = (
   io: Server,
@@ -28,6 +28,8 @@ export const roomEvent = (
     const newRoom: RoomInfo = {
       roomNumber: roomNumber,
       player: [currentUser],
+      gameState: null,
+      readyStatus: 0,
     };
     rooms.set(roomNumber, newRoom);
     socket.join(roomNumber);
