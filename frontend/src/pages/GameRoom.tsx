@@ -104,6 +104,7 @@ function Ready({player, opponent, socket, roomState, setPlayerReady} : {
 }) {
 
   const handleClickReady = () => {
+    console.log("player ready")
     setPlayerReady(true)
     socket.emit("ready")
   }
