@@ -5,7 +5,7 @@ import { Socket } from "socket.io-client";
 // I am wrapping all state variables in an interface, so it is clear to see which function belongs to which state.
 // state username state.
 interface UserNameState {
-  getUserName: string;
+  userName: string;
   setUserName: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -21,7 +21,7 @@ const Welcome: FC<Props> = ({ userNameState, socket }) => {
   const handleConnection = (e: React.FormEvent) => {
     // after the user has typed in a username, the socket will establish connection with the server.
     e.preventDefault();
-    socket.auth = { username: userNameState.getUserName };
+    socket.auth = { username: userNameState.userName };
     socket.connect();
     // redirect route to the lobby
     navigate("/Lobby");
@@ -32,7 +32,7 @@ const Welcome: FC<Props> = ({ userNameState, socket }) => {
         <label htmlFor="productId"></label>
         <input
           type="text"
-          value={userNameState.getUserName}
+          value={userNameState.userName}
           placeholder="Enter userName"
           onChange={(e) => userNameState.setUserName(e.target.value)}
           required

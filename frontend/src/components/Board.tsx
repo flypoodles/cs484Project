@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import Piece from "../components/Piece.tsx"
+import Piece from "./Piece.tsx"
 import "./styles/Board.css"
 import { Move, PieceType } from "../type.ts"
 
