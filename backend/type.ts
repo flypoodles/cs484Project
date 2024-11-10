@@ -7,9 +7,18 @@ export interface User {
 export interface RoomInfo {
   roomNumber: string;
   player: User[];
+  gameState: GameState | null;
+  readyStatus: number;
 }
 
 export interface Message {
   sender: User;
   message: string;
+}
+
+export interface GameState {
+  board: string;
+  turn: number;
+  red: User;
+  black: User;
 }
