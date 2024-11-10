@@ -61,19 +61,20 @@ io.on("connection", (socket) => {
     const { user, room } = retrieveInformation(users, rooms, socket);
 
     if (user == undefined || room == undefined) {
-      console.log("for some reason")
+      console.log("for some reason");
       return;
     }
+
+    room.readyStatus++;
     // only one player is ready
     if (room.readyStatus < 2) {
-      console.log("readyStatus < 2")
-      room.readyStatus++;
+      console.log("readyStatus < 2");
       socket.to(room.roomNumber).emit("opponent ready");
       return;
     }
 
     if (room.readyStatus > 2) {
-      console.log("readyStatus > 2")
+      console.log("readyStatus > 2");
       throw new Error(" ready status greater than 2");
     }
 
@@ -94,30 +95,26 @@ io.on("connection", (socket) => {
     // red always move on even number of turn.
     // black always move on odd number of turn.
 
-    console.log(newGame.red.id)
-    console.log(newGame.black.id)
-    console.log("here")
-    socket
-      .to(newGame.red.id)
-      .emit(
-        "start",
-        newGame.turn % 2 ? true : false,
-        newGame.turn,
-        "red",
-        newGame.board
-      );
-    socket
-      .to(newGame.black.id)
-      .emit(
-        "start",
-        newGame.turn % 2 ? false : true,
-        newGame.turn,
-        "black",
-        invertFen(newGame.board)
-      );
+    console.log(newGame.red.username);
+    console.log(newGame.black.username);
+    console.log("here");
+    io.to(newGame.red.id).emit(
+      "start",
+      newGame.turn % 2 ? true : false,
+      newGame.turn,
+      "red",
+      newGame.board
+    );
+    io.to(newGame.black.id).emit(
+      "start",
+      newGame.turn % 2 ? false : true,
+      newGame.turn,
+      "black",
+      "RHEGKGEHR/8/1C5C/P1P1P1P1P/8/8/p1p1p1p1p/1c5c/8/rhegkgehr"
+    );
   });
 
-  socket.onAny((eventName) => console.log(eventName))
+  socket.onAny((eventName) => console.log(eventName));
 
   socket.on(
     "move",
