@@ -1,6 +1,6 @@
 import { PieceType } from "../type";
 
-const defaultBoard = "RHEGKGEHR/8/1C5C/P1P1P1P1P/8/8/p1p1p1p1p/1c5c/8/rhegkgehr r 0";
+const defaultBoard = "RHEGKGEHR/8/1C5C/P1P1P1P1P/8/8/p1p1p1p1p/1c5c/8/rhegkgehr";
 
 function isCharNumber(c: string) {
   return c >= '0' && c <= '9';
@@ -9,29 +9,18 @@ function isCharNumber(c: string) {
 interface loadBoardOutput {
   loadSuccessful: boolean;
   board: string[][];
-  curPlayer: "r" | "b" | "";
-  curTurn: number
 }
 
-// input: fenstring
+// input: fenstring (board portion only, assuming it is always correct)
 // output: an object of loadBoardOutput
 export function loadBoard(boardString: string = defaultBoard): loadBoardOutput {
 
-  const gameInfo = boardString.split(" ");
-  const curPlayer = gameInfo[1]
-  if ((curPlayer != "r") && (curPlayer != "b")) {
-    alert("unknow Error(loadBoard)")
-    return {loadSuccessful: false, board: [], curPlayer: "", curTurn: 0}
-  }
-  const curTurn = parseInt(gameInfo[2]);
-  const curBoard = gameInfo[0]; // fen-string
-  
   const board: string[][] = new Array(10).fill("").map(() => new Array(9).fill("")) // array
   // process boardString to populare board array
   let curRow = 0;
   let curCol = 0;
-  for (let i = 0; i < curBoard.length; i++) {
-    const pos = curBoard[i]
+  for (let i = 0; i < boardString.length; i++) {
+    const pos = boardString[i]
     if (pos === "/") { // move to new row
       curCol = 0;
       curRow++
@@ -45,10 +34,10 @@ export function loadBoard(boardString: string = defaultBoard): loadBoardOutput {
       curCol++;
     } else {
       alert ("load board failed");
-      return {loadSuccessful: false, board: [], curPlayer: "", curTurn: 0}
+      return {loadSuccessful: false, board: []}
     }
   }
-  return {loadSuccessful: true, board: board, curPlayer: curPlayer, curTurn: curTurn};
+  return {loadSuccessful: true, board: board};
 }
 
 export function comparePiece(piece1: PieceType, piece2: PieceType) {

@@ -1,5 +1,5 @@
 import { PieceType} from "../type.ts"
-import { comparePiece } from "./utils.ts"
+import { comparePiece } from "../utils/utils.ts"
 import "./styles/Piece.css"
 
 export default function Piece({firstPiece, setFirstPiece, finalPiece, setFinalPiece, piece}: {

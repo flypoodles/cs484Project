@@ -1,4 +1,4 @@
-import { copyBoard, loadBoard } from "../components/utils";
+import { copyBoard, loadBoard } from "../utils/utils";
 import Board from "../components/Board";
 import { useEffect, useState } from "react";
 import { Move } from "../type";
