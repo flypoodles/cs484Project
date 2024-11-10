@@ -97,7 +97,6 @@ io.on("connection", (socket) => {
 
     console.log(newGame.red.username);
     console.log(newGame.black.username);
-    console.log("here");
     io.to(newGame.red.id).emit(
       "start",
       newGame.turn % 2 ? true : false,
@@ -110,7 +109,7 @@ io.on("connection", (socket) => {
       newGame.turn % 2 ? false : true,
       newGame.turn,
       "black",
-      "RHEGKGEHR/8/1C5C/P1P1P1P1P/8/8/p1p1p1p1p/1c5c/8/rhegkgehr"
+      invertFen(newGame.board)
     );
   });
 
