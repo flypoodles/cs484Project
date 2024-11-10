@@ -22,3 +22,9 @@ export interface GameState {
   red: User;
   black: User;
 }
+
+export interface MoveInfo {
+  initialPosition: number[];
+  destination: number[];
+  board: string;
+}

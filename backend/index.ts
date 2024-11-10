@@ -1,9 +1,14 @@
 import express from "express";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-import { User, RoomInfo, Message, GameState } from "./type";
+import { User, RoomInfo, Message, GameState, MoveInfo } from "./type";
 import { endRoomConnection, roomEvent } from "./SocketRoomLogic.ts";
-import { invertFen, retrieveInformation, updateBoard } from "./util.ts";
+import {
+  invertFen,
+  normalize,
+  retrieveInformation,
+  updateBoard,
+} from "./util.ts";
 const app = express();
 const server = createServer(app);
 
@@ -85,7 +90,7 @@ io.on("connection", (socket) => {
       // turn: number;
       // red: User;
       // black: User;
-      board: "RHEGKGEHR/8/1C5C/P1P1P1P1P/8/8/p1p1p1p1p/1c5c/8/rhegkgehr",
+      board: "RHEGKGEHR/9/1C5C1/P1P1P1P1P/9/9/p1p1p1p1p/1c5c1/9/rhegkgehr",
       turn: 0,
       red: room.player.at(colorAssignRandomNumber % 2) as User,
       black: room.player.at((colorAssignRandomNumber + 1) % 2) as User,
@@ -130,57 +135,51 @@ io.on("connection", (socket) => {
       }
 
       const gameState = room.gameState as GameState;
-      if (playerFen !== gameState.board) {
-        socket.emit(
-          "error",
-          "the board received is different which means one of the player has cheated"
-        );
-      }
-
-      const validMove: boolean = true; // TODO:implement checking
-
-      const currentPlayer =
+      const currentPlayer: User =
         gameState.turn % 2 ? gameState.red : gameState.black;
-
       if (currentPlayer.id != user.id) {
         console.log("the player attempted to move not during their turn");
         socket.emit(
-          "error",
+          "move error",
           "the player attempted to move not during their turn"
         );
       }
 
-      // export const updateBoard = (
-      //   fen: string,
-      //   initialPosition: number[],
-      //   destination: number[],
-      //   piece: string
-      // ) => {};
+      const moveInfo: MoveInfo =
+        gameState.black.id === currentPlayer.id
+          ? normalize(playerFen, initialPosition, destination)
+          : {
+              destination: destination,
+              board: playerFen,
+              initialPosition: initialPosition,
+            };
 
+      if (moveInfo.board !== gameState.board) {
+        throw new Error(
+          "player's board and game state board does not equal to each other"
+        );
+      }
+      const validMove: boolean = true; // TODO:implement checking
       const newBoard: string = updateBoard(
         gameState.board,
-        initialPosition,
-        destination,
+        moveInfo.initialPosition,
+        moveInfo.destination,
         piece
       );
       gameState.board = newBoard;
       gameState.turn++;
-      socket
-        .to(gameState.red.id)
-        .emit(
-          "end turn",
-          gameState.turn % 2 ? true : false,
-          gameState.turn,
-          gameState.board
-        );
-      socket
-        .to(gameState.black.id)
-        .emit(
-          "end turn",
-          gameState.turn % 2 ? false : true,
-          gameState.turn,
-          invertFen(gameState.board)
-        );
+      io.to(gameState.red.id).emit(
+        "end turn",
+        gameState.turn % 2 ? true : false,
+        gameState.turn,
+        gameState.board
+      );
+      io.to(gameState.black.id).emit(
+        "end turn",
+        gameState.turn % 2 ? false : true,
+        gameState.turn,
+        invertFen(gameState.board)
+      );
     }
   );
 
