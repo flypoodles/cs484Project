@@ -45,6 +45,7 @@ export const updateBoard: (
   piece: string
 ) => {
   const board: string[][] = fenToBoard(fen);
+
   if (board[initialPosition[0]][initialPosition[1]] !== piece) {
     throw new Error("piece not equal");
   }
@@ -58,7 +59,7 @@ const isCharNumber = (c: string) => {
   return c >= "0" && c <= "9";
 };
 
-export const fenToBoard = (fen: string) => {
+export const fenToBoardWrong = (fen: string) => {
   const board: string[][] = new Array(10)
     .fill("")
     .map(() => new Array(9).fill("")); // array
@@ -86,7 +87,35 @@ export const fenToBoard = (fen: string) => {
   return board;
 };
 
-export const boardToFen: (board: string[][]) => string = (
+// input: fenstring (board portion only, assuming it is always correct)
+// output: an object of loadBoardOutput
+export function fenToBoard(boardString: string): string[][] {
+
+  const board: string[][] = new Array(10).fill("").map(() => new Array(9).fill("")) // array
+  // process boardString to populare board array
+  let curRow = 0;
+  let curCol = 0;
+  for (let i = 0; i < boardString.length; i++) {
+    const pos = boardString[i]
+    if (pos === "/") { // move to new row
+      curCol = 0;
+      curRow++
+    } else if (isCharNumber(pos)) { // number means skipping spaces
+      curCol += parseInt(pos);
+    } else if (pos === pos.toUpperCase()) { // black
+      board[curRow][curCol] = "b" + pos.toLowerCase()
+      curCol++;
+    } else if (pos === pos.toLowerCase()) { // red
+      board[curRow][curCol] = "r" + pos.toLowerCase();
+      curCol++;
+    } else {
+      throw new Error("Error while creating the board")
+    }
+  }
+  return board
+}
+
+export const boardToFenWrong: (board: string[][]) => string = (
   board: string[][]
 ) => {
   let fen = "";
@@ -102,6 +131,34 @@ export const boardToFen: (board: string[][]) => string = (
         count = 0;
       } else {
         fen = fen.concat(board[i][j]);
+      }
+    }
+    if (count != 0) {
+      fen = fen.concat(count.toString());
+      count = 0;
+    }
+    if (i < board.length - 1) {
+      fen = fen.concat("/");
+    }
+  }
+  return fen;
+};
+
+export function boardToFen(board: string[][]): string {
+  let fen = "";
+
+  for (let i = 0; i < board.length; i++) {
+    let count = 0;
+    for (let j = 0; j < board[i].length; j++) {
+      if (board[i][j] == "") {
+        count++;
+      } else {
+        if (count != 0) {
+          fen = fen.concat(count.toString());
+          count = 0;
+        }
+        const pieceLetter = (board[i][j][0] === "r")? board[i][j][1] : board[i][j][1].toUpperCase() // red is lowercase, black is uppercase
+        fen = fen.concat(pieceLetter);
       }
     }
     if (count != 0) {

@@ -2,10 +2,12 @@ import { PieceType} from "../type.ts"
 import { comparePiece } from "../utils/utils.ts"
 import "./styles/Piece.css"
 
-export default function Piece({firstPiece, setFirstPiece, finalPiece, setFinalPiece, piece}: {
+export default function Piece({firstPiece, setFirstPiece, finalPiece, setFinalPiece, piece, side, yourTurn}: {
   firstPiece: PieceType, setFirstPiece: React.Dispatch<React.SetStateAction<PieceType>>
   finalPiece: PieceType, setFinalPiece: React.Dispatch<React.SetStateAction<PieceType>>
-  piece: PieceType
+  piece: PieceType,
+  side: string,
+  yourTurn: boolean
 }) {
 
   const isVisible = (comparePiece(firstPiece, piece))? true : false
@@ -13,27 +15,29 @@ export default function Piece({firstPiece, setFirstPiece, finalPiece, setFinalPi
   const pieceSide = (piece.piece === "")? "" : piece.piece[0] as "" | "r" | "b"
 
   const handleClickPiece = () => {
-    // if there is no first piece then set first piece
-    if (firstPiece.piece === "none") {
-      if (piece.piece !== "") {
-        setFirstPiece(piece)
+    if (yourTurn) {
+      // if there is no first piece then set first piece
+      if (firstPiece.piece === "none") {
+        if (piece.piece !== "" && pieceSide == side) {
+          setFirstPiece(piece)
+        }
       }
-    }
-    // else set final piece if appropriate
-    else {
-      const firstPieceSide = firstPiece.piece[0]
-
-      // if the first piece == the clicked piece then unclick the piece
-      if (comparePiece(firstPiece, piece)) {
-        setFirstPiece({piece: "none", row: -1, col: -1})
-      }
-      // if the first piece and the clicked piece is the same side, then set first piece to that clicked piece to enable visible
-      else if (firstPieceSide == pieceSide) {
-        setFirstPiece(piece)
-      }
-      // else then set final piece = clicked piece
+      // else set final piece if appropriate
       else {
-        setFinalPiece({piece: firstPiece.piece, row: piece.row, col: piece.col})
+        const firstPieceSide = firstPiece.piece[0]
+
+        // if the first piece == the clicked piece then unclick the piece
+        if (comparePiece(firstPiece, piece)) {
+          setFirstPiece({piece: "none", row: -1, col: -1})
+        }
+        // if the first piece and the clicked piece is the same side, then set first piece to that clicked piece to enable visible
+        else if (firstPieceSide == pieceSide) {
+          setFirstPiece(piece)
+        }
+        // else then set final piece = clicked piece
+        else {
+          setFinalPiece({piece: firstPiece.piece, row: piece.row, col: piece.col})
+        }
       }
     }
   }

@@ -143,6 +143,7 @@ io.on("connection", (socket) => {
           "move error",
           "the player attempted to move not during their turn"
         );
+        return
       }
 
       const moveInfo: MoveInfo =
@@ -153,33 +154,42 @@ io.on("connection", (socket) => {
               board: playerFen,
               initialPosition: initialPosition,
             };
-
+      console.log(`initPos: ${initialPosition.toString()}, pos: ${destination.toString()}, piece: ${piece}, boardFen: ${playerFen}`)
+      console.log(`player board: ${moveInfo.board}, game state board: ${gameState.board}`)
       if (moveInfo.board !== gameState.board) {
-        throw new Error(
-          "player's board and game state board does not equal to each other"
-        );
+        // throw new Error(
+        //   "player's board and game state board does not equal to each other"
+        // );
+        console.log("player's board and game state board does not equal to each other")
+        socket.emit("move error", "player's board and game state board does not equal to each other")
+        return
       }
       const validMove: boolean = true; // TODO:implement checking
-      const newBoard: string = updateBoard(
-        gameState.board,
-        moveInfo.initialPosition,
-        moveInfo.destination,
-        piece
-      );
-      gameState.board = newBoard;
-      gameState.turn++;
-      io.to(gameState.red.id).emit(
-        "end turn",
-        gameState.turn % 2 ? true : false,
-        gameState.turn,
-        gameState.board
-      );
-      io.to(gameState.black.id).emit(
-        "end turn",
-        gameState.turn % 2 ? false : true,
-        gameState.turn,
-        invertFen(gameState.board)
-      );
+      
+      try {
+        const newBoard: string = updateBoard( // this function throws error so we need to catch it
+          gameState.board,
+          moveInfo.initialPosition,
+          moveInfo.destination,
+          piece
+        );
+        gameState.board = newBoard;
+        gameState.turn++;
+        io.to(gameState.red.id).emit(
+          "end turn",
+          gameState.turn % 2 ? true : false,
+          gameState.turn,
+          gameState.board
+        );
+        io.to(gameState.black.id).emit(
+          "end turn",
+          gameState.turn % 2 ? false : true,
+          gameState.turn,
+          invertFen(gameState.board)
+        );
+      } catch (error) {
+        console.log(error)
+      }
     }
   );
 

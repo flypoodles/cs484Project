@@ -55,3 +55,34 @@ export function copyBoard(board: string[][]) {
   }
   return newBoard
 }
+
+// same as backend boardToFen
+export function boardToFen(board: string[][]): string {
+  let fen = "";
+
+  console.log(board)
+  for (let i = 0; i < board.length; i++) {
+    let count = 0;
+    for (let j = 0; j < board[i].length; j++) {
+      if (board[i][j] == "") {
+        count++;
+      } else {
+        if (count != 0) {
+          fen = fen.concat(count.toString());
+          count = 0;
+        }
+        const pieceLetter = (board[i][j][0] === "r")? board[i][j][1] : board[i][j][1].toUpperCase() // red is lowercase, black is uppercase
+        console.log(board[i][j], pieceLetter)
+        fen = fen.concat(pieceLetter);
+      }
+    }
+    if (count != 0) {
+      fen = fen.concat(count.toString());
+      count = 0;
+    }
+    if (i < board.length - 1) {
+      fen = fen.concat("/");
+    }
+  }
+  return fen;
+};

@@ -1,9 +1,9 @@
-import { User, RoomInfo } from "../type.ts";
-import React, { ReactNode, useEffect, useState } from "react";
+import { User, RoomInfo, Move } from "../type.ts";
+import React, { useState, useEffect } from "react";
 import { Socket } from "socket.io-client";
 import Chat from "../components/Chat.tsx";
 import { useNavigate } from "react-router-dom";
-import { loadBoard } from "../utils/utils.ts";
+import { loadBoard, boardToFen } from "../utils/utils.ts";
 
 import Board from "../components/Board.tsx";
 
@@ -32,6 +32,7 @@ const GameRoom: React.FC<roomProp> = ({
   const [opponent, setOpponent] = useState<User | null>(roomState.room != null ? roomState.room.opponent : null);
   const [playerReady, setPlayerReady] = useState(false)
   const [opponentReady, setOpponentReady] = useState(false)
+  const [gameStatus, setGameStatus] = useState(false)
   const [board, setBoard] = useState<string[][]>([])
   const [side, setSide] = useState<string>("")
   const [turn, setTurn] = useState(0)
@@ -68,18 +69,33 @@ const GameRoom: React.FC<roomProp> = ({
     setTurn(turn)
     setSide(side)
     setYourTurn(yourTurn)
+    setGameStatus(true)
     // populate the board and start the game
     const startBoard = loadBoard(boardString).board
     setBoard(startBoard)
   })
 
+  socket.on("end turn", (yourTurnNew: boolean, turnNew: number, boardFenNew: string) => {
+    setYourTurn(yourTurnNew)
+    setTurn(turnNew)
+    const newBoard = loadBoard(boardFenNew)
+    setBoard(newBoard.board)
+  })
+
+  socket.on("move error", (message: string) => {
+    console.log(message)
+    setYourTurn(true)
+  })
+
+  console.log(move)
+
   return (
     <main>
       <section>
         <div>Turn: {turn}</div>
-        <div style={(side == "b")? {fontWeight: "bold"} : {}}>Opponent: {opponent?.username} {opponentReady? "(ready)" : ""} </div>
-        <Board board={board} setMove={setMove}/>
-        <div style={(side == "r")? {fontWeight: "bold"} : {}}>You: {player.username} {playerReady? "(ready)" : ""}</div>
+        <div style={(!yourTurn)? {fontWeight: "bold"} : {}}>Opponent: {opponent?.username} {(opponentReady && !gameStatus)? "(ready)" : ""} </div>
+        <Board board={board} setMove={setMove} side={(side === "red") ? "r" : (side === "black") ? "b" : ""} socket={socket} yourTurn={yourTurn} setYourTurn={(setYourTurn)}/>
+        <div style={(yourTurn)? {fontWeight: "bold"} : {}}>You: {player.username} {(playerReady && !gameStatus)? "(ready)" : ""}</div>
       </section>
       {waiting
         ? <Waiting roomState={roomState} />
