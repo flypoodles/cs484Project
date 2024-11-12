@@ -33,6 +33,7 @@ export default function Board({board, setMove, side, socket, yourTurn, setYourTu
       setFirstPiece({piece: "none", row: -1, col: -1})
       setFinalPiece({piece: "none", row: -1, col: -1})
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finalPiece])
 
   return (

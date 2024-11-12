@@ -2,7 +2,7 @@ import { PieceType} from "../type.ts"
 import { comparePiece } from "../utils/utils.ts"
 import "./styles/Piece.css"
 
-export default function Piece({firstPiece, setFirstPiece, finalPiece, setFinalPiece, piece, side, yourTurn}: {
+export default function Piece({firstPiece, setFirstPiece, setFinalPiece, piece, side, yourTurn}: {
   firstPiece: PieceType, setFirstPiece: React.Dispatch<React.SetStateAction<PieceType>>
   finalPiece: PieceType, setFinalPiece: React.Dispatch<React.SetStateAction<PieceType>>
   piece: PieceType,

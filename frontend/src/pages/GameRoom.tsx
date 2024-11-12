@@ -1,9 +1,8 @@
 import { User, RoomInfo, Move } from "../type.ts";
-import React, { useState, useEffect } from "react";
+import React, { useState  } from "react";
 import { Socket } from "socket.io-client";
 import Chat from "../components/Chat.tsx";
-import { useNavigate } from "react-router-dom";
-import { loadBoard, boardToFen } from "../utils/utils.ts";
+import { loadBoard } from "../utils/utils.ts";
 
 import Board from "../components/Board.tsx";
 
@@ -24,11 +23,13 @@ interface roomProp {
 const GameRoom: React.FC<roomProp> = ({
   socket,
   roomState,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   userState,
 }: roomProp) => {
 
-  const navigate = useNavigate();
-  const [player, setPlayer] = useState<User>((roomState.room as RoomInfo).player);
+  // const navigate = useNavigate();
+  // const [player, setPlayer] = useState<User>((roomState.room as RoomInfo).player);
+  const player = roomState.room.player
   const [opponent, setOpponent] = useState<User | null>(roomState.room != null ? roomState.room.opponent : null);
   const [playerReady, setPlayerReady] = useState(false)
   const [opponentReady, setOpponentReady] = useState(false)
@@ -116,7 +117,7 @@ function Waiting({roomState}: {roomState: RoomState}) {
 }
 
 function Ready({player, opponent, socket, roomState, setPlayerReady} : {
-  player: User, opponent: User, socket: Socket, roomState: RoomState
+  player: User, opponent: User, socket: Socket, roomState: RoomState, setPlayerReady: React.Dispatch<React.SetStateAction<boolean>>
 }) {
 
   const handleClickReady = () => {
