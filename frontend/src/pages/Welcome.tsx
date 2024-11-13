@@ -2,6 +2,7 @@ import React, { FC, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 
+import "./styles/Welcome.css"
 // I am wrapping all state variables in an interface, so it is clear to see which function belongs to which state.
 // state username state.
 interface UserNameState {
@@ -27,9 +28,10 @@ const Welcome: FC<Props> = ({ userNameState, socket }) => {
     navigate("/Lobby");
   };
   return (
-    <div>
-      <form onSubmit={handleConnection}>
-        <label htmlFor="productId"></label>
+    <div id="welcome">
+      <form className="loginForm" onSubmit={handleConnection}>
+        <h1>Welcome to Chess game!</h1>
+        <h3>Login</h3>
         <input
           type="text"
           value={userNameState.userName}

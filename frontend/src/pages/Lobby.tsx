@@ -2,6 +2,9 @@ import { User, RoomInfo } from "../type.ts";
 import React, {  useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
+
+import "./styles/Lobby.css"
+
 interface LobbyProp {
   user: User | null;
   socket: Socket;
@@ -66,48 +69,41 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
   };
 
   return (
-    <>
-      <button
-        onClick={() => {
-          socket.disconnect();
-        }}
-      >
-        Disconnect
-      </button>
+    <section id="lobby">
+      <div className="lobby-content">
+        <button className="disconnectBtn" onClick={() => socket.disconnect()}>Disconnect</button>
 
-      {/* make sure that the user is not null as this point */}
-      {user == null ? (
-        <h1>Error: user is null</h1>
-      ) : (
-        <h1>Welcome {user.username}</h1>
-      )}
+        {/* make sure that the user is not null as this point */}
+        {user == null ? (
+          <h1>Error: user is null</h1>
+        ) : (
+          <h1>Welcome {user.username}!</h1>
+        )}
 
-      {joinError && <h1> Join error: {getError}</h1>}
-      {joinScreen ? (
-        <>
-          <form onSubmit={handleJoin}>
-            <input
-              type="text"
-              value={roomNumber}
-              placeholder="Enter room number"
-              onChange={(e) => setRoomNumber(e.target.value)}
-              required
-            />
-            <button onClick={() => setJoinScreen(false)}>Back</button>
-            <button type="submit">Join</button>
-          </form>
-        </>
-      ) : (
-        <>
-          <button type="button" onClick={() => handleCreate()}>
-            create
-          </button>
-          <button type="button" onClick={() => setJoinScreen(true)}>
-            join a room
-          </button>
-        </>
-      )}
-    </>
+        {joinError && <h1> Join error: {getError}</h1>}
+        {joinScreen ? (
+          <>
+            <form className="form-joinRoom" onSubmit={handleJoin}>
+              <input
+                type="text"
+                value={roomNumber}
+                placeholder="Enter room number"
+                onChange={(e) => setRoomNumber(e.target.value)}
+                required
+              />
+
+              <button type="button" onClick={() => setJoinScreen(false)}>Back</button>
+              <button type="submit">Join</button>
+            </form>
+          </>
+        ) : (
+          <div className="lobby-options">
+            <button onClick={() => handleCreate()}>Create</button>
+            <button onClick={() => setJoinScreen(true)}>Join a room</button>
+          </div>
+        )}
+      </div>
+    </section>
   );
 };
 
