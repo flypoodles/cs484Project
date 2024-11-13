@@ -5,6 +5,8 @@ import { Socket } from "socket.io-client";
 import Chat from "../components/Chat.tsx";
 import BoardSection from "../components/BoardSection.tsx";
 
+import "./styles/GameRoom.css"
+
 interface RoomState {
   room: RoomInfo;
   setRoom: React.Dispatch<React.SetStateAction<RoomInfo>>;
@@ -70,8 +72,8 @@ const GameRoom: React.FC<roomProp> = ({
 
 
   return (
-    <main>
-      <section id="rightPanel">
+    <main id="GameRoom">
+      <section id="leftPanel">
         <BoardSection
           socket={socket}
           player={player} playerReady={playerReady}
@@ -79,7 +81,7 @@ const GameRoom: React.FC<roomProp> = ({
           gameStatus={gameStatus} setGameStatus={setGameStatus}
         />
       </section>
-      <section id="leftPanel">
+      <section id="rightPanel">
         {waiting
           ? <Waiting
               roomState={roomState} 
