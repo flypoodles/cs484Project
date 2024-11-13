@@ -1,10 +1,9 @@
-import { User, RoomInfo, Move } from "../type.ts";
-import React, { useState  } from "react";
+import { User, RoomInfo } from "../type.ts";
+import React, { useEffect, useState  } from "react";
 import { Socket } from "socket.io-client";
-import Chat from "../components/Chat.tsx";
-import { loadBoard } from "../utils/utils.ts";
 
-import Board from "../components/Board.tsx";
+import Chat from "../components/Chat.tsx";
+import BoardSection from "../components/BoardSection.tsx";
 
 interface RoomState {
   room: RoomInfo;
@@ -34,11 +33,6 @@ const GameRoom: React.FC<roomProp> = ({
   const [playerReady, setPlayerReady] = useState(false)
   const [opponentReady, setOpponentReady] = useState(false)
   const [gameStatus, setGameStatus] = useState(false)
-  const [board, setBoard] = useState<string[][]>([])
-  const [side, setSide] = useState<string>("")
-  const [turn, setTurn] = useState(0)
-  const [yourTurn, setYourTurn] = useState(false)
-  const [move, setMove] = useState<Move | null>(null)
 
   // waiting = true if there is no opponent, otherwise false
   const [waiting, setWaiting] = useState<boolean>(
@@ -49,59 +43,57 @@ const GameRoom: React.FC<roomProp> = ({
     socket.emit("leave room");
   };
 
-  socket.on("User Joined", (opponent: User | null, player: User, roomNumber: string) => {
-    const room: RoomInfo = {
-      opponent: opponent,
-      player: player,
-      roomNumber: roomNumber,
-    };
-    roomState.setRoom(room);
-    setWaiting(false);
-    setOpponent(room.opponent);
-  });
+  useEffect(() => {
+    socket.on("User Joined", (opponent: User | null, player: User, roomNumber: string) => {
+      const room: RoomInfo = {
+        opponent: opponent,
+        player: player,
+        roomNumber: roomNumber,
+      };
+      console.log("user join")
+      roomState.setRoom(room);
+      setWaiting(false);
+      setOpponent(room.opponent);
+    });
 
-  socket.on("opponent ready", () => {
-    console.log("opponent is ready")
-    setOpponentReady(true)
-  })
+    socket.on("opponent ready", () => {
+      console.log("opponent is ready")
+      setOpponentReady(true)
+    })
 
-  socket.on("start", (yourTurn: boolean, turn: number, side: string, boardString: string) => {
-    console.log(`Start the game! yourTurn=${yourTurn} turn=${turn} side=${side} boardString=${boardString}`)
-    setTurn(turn)
-    setSide(side)
-    setYourTurn(yourTurn)
-    setGameStatus(true)
-    // populate the board and start the game
-    const startBoard = loadBoard(boardString).board
-    setBoard(startBoard)
-  })
+    return () => {
+      console.log("remove eventlistener 'user join', 'opponent ready'")
+      socket.off("User Joined")
+      socket.off("opponent ready")
+    }
+  },[socket, roomState])
 
-  socket.on("end turn", (yourTurnNew: boolean, turnNew: number, boardFenNew: string) => {
-    setYourTurn(yourTurnNew)
-    setTurn(turnNew)
-    const newBoard = loadBoard(boardFenNew)
-    setBoard(newBoard.board)
-  })
-
-  socket.on("move error", (message: string) => {
-    console.log(message)
-    setYourTurn(true)
-  })
-
-  console.log(move)
 
   return (
     <main>
-      <section>
-        <div>Turn: {turn}</div>
-        <div style={(!yourTurn)? {fontWeight: "bold"} : {}}>Opponent: {opponent?.username} {(opponentReady && !gameStatus)? "(ready)" : ""} </div>
-        <Board board={board} setMove={setMove} side={(side === "red") ? "r" : (side === "black") ? "b" : ""} socket={socket} yourTurn={yourTurn} setYourTurn={(setYourTurn)}/>
-        <div style={(yourTurn)? {fontWeight: "bold"} : {}}>You: {player.username} {(playerReady && !gameStatus)? "(ready)" : ""}</div>
+      <section id="rightPanel">
+        <BoardSection
+          socket={socket}
+          player={player} playerReady={playerReady}
+          opponent={opponent} opponentReady={opponentReady}
+          gameStatus={gameStatus} setGameStatus={setGameStatus}
+        />
       </section>
-      {waiting
-        ? <Waiting roomState={roomState} />
-        : <Ready player={player} opponent={opponent as User} socket={socket} roomState={roomState} setPlayerReady={setPlayerReady}/>}
-      <button onClick={handleLeaveRoom}> leave Room</button>
+      <section id="leftPanel">
+        {waiting
+          ? <Waiting
+              roomState={roomState} 
+            />
+          : <Ready 
+              player={player} setPlayerReady={setPlayerReady}
+              opponent={opponent as User}
+              socket={socket}
+              roomState={roomState}
+              gameStatus={gameStatus}
+            />
+        }
+        <button onClick={handleLeaveRoom}> leave Room</button>
+      </section>
     </main>
   );
 };
@@ -116,8 +108,12 @@ function Waiting({roomState}: {roomState: RoomState}) {
   )
 }
 
-function Ready({player, opponent, socket, roomState, setPlayerReady} : {
-  player: User, opponent: User, socket: Socket, roomState: RoomState, setPlayerReady: React.Dispatch<React.SetStateAction<boolean>>
+function Ready({player, opponent, socket, roomState, setPlayerReady, gameStatus} : {
+  player: User, setPlayerReady: React.Dispatch<React.SetStateAction<boolean>>
+  opponent: User,
+  socket: Socket,
+  roomState: RoomState,
+  gameStatus: boolean
 }) {
 
   const handleClickReady = () => {
@@ -136,7 +132,7 @@ function Ready({player, opponent, socket, roomState, setPlayerReady} : {
         socket={socket}
         room={roomState.room}
       />
-      <button onClick={handleClickReady}>Ready</button>
+      <button onClick={handleClickReady} disabled={gameStatus}>Ready</button>
     </section>
   )
 }

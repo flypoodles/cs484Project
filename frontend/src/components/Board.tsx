@@ -2,13 +2,12 @@ import { useEffect, useState } from "react"
 
 import Piece from "./Piece.tsx"
 import "./styles/Board.css"
-import { Move, PieceType } from "../type.ts"
-import { boardToFen } from "../utils/utils.ts"
+import { PieceType } from "../type.ts"
+import { boardToFen, comparePiece } from "../utils/utils.ts"
 import { Socket } from "socket.io-client"
 
-export default function Board({board, setMove, side, socket, yourTurn, setYourTurn} : {
+export default function Board({board, side, socket, yourTurn, setYourTurn} : {
   board: string[][],
-  setMove: React.Dispatch<React.SetStateAction<Move | null>>,
   side: string,
   socket: Socket,
   yourTurn: boolean,
@@ -25,7 +24,6 @@ export default function Board({board, setMove, side, socket, yourTurn, setYourTu
   useEffect(() => {
     if (finalPiece.piece !== "none") {
       console.log(`move ${firstPiece.piece} from ${firstPiece.row}-${firstPiece.col} to ${finalPiece.row}-${finalPiece.col}`)
-      setMove({piece: firstPiece.piece, from: [firstPiece.row, firstPiece.col], to: [finalPiece.row, finalPiece.col]})
       const boardFen = boardToFen(board)
       console.log(boardFen)
       socket.emit("move", [firstPiece.row, firstPiece.col], [finalPiece.row, finalPiece.col], firstPiece.piece, boardFen)
@@ -36,18 +34,46 @@ export default function Board({board, setMove, side, socket, yourTurn, setYourTu
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finalPiece])
 
+  const onClickPiece = (piece: PieceType) => {
+    const pieceSide = (piece.piece === "")? "" : piece.piece[0] as "" | "r" | "b"
+
+    if (yourTurn) {
+      // if there is no first piece then set first piece
+      if (firstPiece.piece === "none") {
+        if (piece.piece !== "" && pieceSide == side) {
+          setFirstPiece(piece)
+        }
+      }
+      // else set final piece if appropriate
+      else {
+        const firstPieceSide = firstPiece.piece[0]
+
+        // if the first piece == the clicked piece then unclick the piece
+        if (comparePiece(firstPiece, piece)) {
+          setFirstPiece({piece: "none", row: -1, col: -1})
+        }
+        // if the first piece and the clicked piece is the same side, then set first piece to that clicked piece to enable visible
+        else if (firstPieceSide == pieceSide) {
+          setFirstPiece(piece)
+        }
+        // else then set final piece = clicked piece
+        else {
+          setFinalPiece({piece: firstPiece.piece, row: piece.row, col: piece.col})
+        }
+      }
+    }
+  }
+
   return (
-    <section id="board">
+    <div id="board">
       {board.flatMap((row, i) => row.map((piece, j) =>
         <Piece
           key={`${i}-${j}`}
-          firstPiece={firstPiece} setFirstPiece={setFirstPiece}
-          finalPiece={finalPiece} setFinalPiece={setFinalPiece}
-          yourTurn={yourTurn}
-          side={side}
+          isVisible={comparePiece(firstPiece, {piece: piece, row: i, col: j})? true : false}
+          handleClickPiece={() => onClickPiece({piece: piece, row: i, col: j})}
           piece={{piece: piece, row: i, col: j}}
-        /> 
+        />
       ))}
-    </section>
+    </div>
   )
 }

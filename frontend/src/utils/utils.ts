@@ -1,7 +1,5 @@
 import { PieceType } from "../type";
 
-const defaultBoard = "RHEGKGEHR/8/1C5C/P1P1P1P1P/8/8/p1p1p1p1p/1c5c/8/rhegkgehr";
-
 function isCharNumber(c: string) {
   return c >= '0' && c <= '9';
 }
@@ -13,7 +11,7 @@ interface loadBoardOutput {
 
 // input: fenstring (board portion only, assuming it is always correct)
 // output: an object of loadBoardOutput
-export function loadBoard(boardString: string = defaultBoard): loadBoardOutput {
+export function fenToBoard(boardString: string): loadBoardOutput {
 
   const board: string[][] = new Array(10).fill("").map(() => new Array(9).fill("")) // array
   // process boardString to populare board array

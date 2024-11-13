@@ -1,5 +1,5 @@
 import { User, RoomInfo } from "../type.ts";
-import React, { ReactEventHandler, useEffect, useState } from "react";
+import React, {  useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 interface LobbyProp {
