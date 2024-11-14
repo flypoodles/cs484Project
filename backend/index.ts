@@ -197,7 +197,8 @@ io.on("connection", (socket) => {
     console.log("a user disconnected :", users.get(socket.id));
     // make sure to room request after disconnect
     // this is a function from SocketRoomLogic
-    endRoomConnection(io, socket, users, rooms);
+    // endRoomConnection(io, socket, users, rooms);
+    socket.disconnect()
     users.delete(socket.id);
   });
 });

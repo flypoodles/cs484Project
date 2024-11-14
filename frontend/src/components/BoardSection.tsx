@@ -18,6 +18,7 @@ export default function BoardSection({socket, player, playerReady, opponent, opp
   const [yourTurn, setYourTurn] = useState(false)
 
   useEffect(() => {
+
     if (!gameStatus) {
       socket.on("start", (yourTurn: boolean, turn: number, side: string, boardString: string) => {
         console.log(`Start the game! yourTurn=${yourTurn} turn=${turn} side=${side} boardString=${boardString}`)
@@ -53,7 +54,7 @@ export default function BoardSection({socket, player, playerReady, opponent, opp
         socket.off("move error")
       }
     }
-  },[socket, gameStatus, setGameStatus])
+  },[socket, gameStatus, setGameStatus, opponent])
 
   return (
     <section>

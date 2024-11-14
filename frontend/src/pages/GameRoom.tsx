@@ -46,6 +46,14 @@ const GameRoom: React.FC<roomProp> = ({
   };
 
   useEffect(() => {
+    socket.on("opponent leave", () => {
+      console.log("socket event: opponent leave")
+      setGameStatus(false)
+      setPlayerReady(false)
+      setOpponentReady(false)
+      setWaiting(true)
+    })
+
     socket.on("User Joined", (opponent: User | null, player: User, roomNumber: string) => {
       const room: RoomInfo = {
         opponent: opponent,
