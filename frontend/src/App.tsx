@@ -15,6 +15,7 @@ function App() {
     // socket will call this function if connected
     function onConnect(user: User) {
       setUser(user);
+      navigate("/Lobby");
     }
 
     // socket will call this function if disconnected
@@ -62,7 +63,12 @@ function App() {
           element={
             <GameRoom
               socket={socket}
-              roomState={{ room: room, setRoom } as {room: RoomInfo, setRoom: React.Dispatch<React.SetStateAction<RoomInfo>>}}
+              roomState={
+                { room: room, setRoom } as {
+                  room: RoomInfo;
+                  setRoom: React.Dispatch<React.SetStateAction<RoomInfo>>;
+                }
+              }
               userState={{ user: user, setUser }}
             />
           }
