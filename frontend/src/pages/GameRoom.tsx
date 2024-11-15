@@ -105,7 +105,8 @@ const GameRoom: React.FC<roomProp> = ({
             opponent={opponent as User}
             socket={socket}
             roomState={roomState}
-            gameStatus={gameStatus}
+            playerReady={playerReady}
+            // gameStatus={gameStatus}
           />
         )}
         <button onClick={handleLeaveRoom}> leave Room</button>
@@ -130,14 +131,16 @@ function Ready({
   socket,
   roomState,
   setPlayerReady,
-  gameStatus,
+  playerReady,
+  // gameStatus,
 }: {
   player: User;
   setPlayerReady: React.Dispatch<React.SetStateAction<boolean>>;
   opponent: User;
   socket: Socket;
   roomState: RoomState;
-  gameStatus: boolean;
+  playerReady: boolean;
+  // gameStatus: boolean;
 }) {
   const handleClickReady = () => {
     console.log("player ready");
@@ -155,7 +158,7 @@ function Ready({
         socket={socket}
         room={roomState.room}
       />
-      <button onClick={handleClickReady} disabled={gameStatus}>
+      <button onClick={handleClickReady} disabled={playerReady}>
         Ready
       </button>
     </section>

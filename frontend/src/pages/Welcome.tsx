@@ -1,5 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { FC, useState } from "react";
 import { Socket } from "socket.io-client";
 
 import "./styles/Welcome.css";
