@@ -6,6 +6,7 @@ import {
   retrieveInformation,
   updateBoard,
 } from "../util.ts";
+import { validateMove } from "../gameLogics/ValidateMove.ts";
 
 export const GameEvent = (
   io: Server,
@@ -124,7 +125,16 @@ export const GameEvent = (
         );
         return;
       }
-      const validMove: boolean = true; // TODO:implement checking
+      const validMove: { success: boolean; err: string } =
+        validateMove(moveInfo);
+
+      if (!validMove.success) {
+        console.log(
+          `player: ${currentPlayer.username}  move error : ${validMove.err}`
+        );
+        socket.emit("move error", validMove.err);
+        return;
+      }
 
       try {
         const newBoard: string = updateBoard(

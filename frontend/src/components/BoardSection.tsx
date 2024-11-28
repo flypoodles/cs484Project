@@ -26,7 +26,7 @@ export default function BoardSection({
   const [side, setSide] = useState<string>("");
   const [turn, setTurn] = useState(0);
   const [yourTurn, setYourTurn] = useState(false);
-
+  const [error, setError] = useState("");
   useEffect(() => {
     if (!gameStatus) {
       socket.on(
@@ -53,6 +53,7 @@ export default function BoardSection({
       socket.on(
         "end turn",
         (yourTurnNew: boolean, turnNew: number, boardFenNew: string) => {
+          setError("");
           setYourTurn(yourTurnNew);
           setTurn(turnNew);
           const newBoard = fenToBoard(boardFenNew);
@@ -62,6 +63,7 @@ export default function BoardSection({
 
       socket.on("move error", (message: string) => {
         console.log(message);
+        setError(message);
         setYourTurn(true);
       });
     }
@@ -93,6 +95,8 @@ export default function BoardSection({
       <div style={yourTurn ? { fontWeight: "bold" } : {}}>
         You: {player.username} {playerReady && !gameStatus ? "(ready)" : ""}
       </div>
+
+      {error !== "" && <div>{error}</div>}
     </section>
   );
 }
