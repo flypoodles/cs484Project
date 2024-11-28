@@ -1,7 +1,5 @@
 import { PieceType } from "../type";
 
-const defaultBoard = "RHEGKGEHR/8/1C5C/P1P1P1P1P/8/8/p1p1p1p1p/1c5c/8/rhegkgehr";
-
 function isCharNumber(c: string) {
   return c >= '0' && c <= '9';
 }
@@ -13,7 +11,7 @@ interface loadBoardOutput {
 
 // input: fenstring (board portion only, assuming it is always correct)
 // output: an object of loadBoardOutput
-export function loadBoard(boardString: string = defaultBoard): loadBoardOutput {
+export function fenToBoard(boardString: string): loadBoardOutput {
 
   const board: string[][] = new Array(10).fill("").map(() => new Array(9).fill("")) // array
   // process boardString to populare board array
@@ -55,3 +53,34 @@ export function copyBoard(board: string[][]) {
   }
   return newBoard
 }
+
+// same as backend boardToFen
+export function boardToFen(board: string[][]): string {
+  let fen = "";
+
+  console.log(board)
+  for (let i = 0; i < board.length; i++) {
+    let count = 0;
+    for (let j = 0; j < board[i].length; j++) {
+      if (board[i][j] == "") {
+        count++;
+      } else {
+        if (count != 0) {
+          fen = fen.concat(count.toString());
+          count = 0;
+        }
+        const pieceLetter = (board[i][j][0] === "r")? board[i][j][1] : board[i][j][1].toUpperCase() // red is lowercase, black is uppercase
+        console.log(board[i][j], pieceLetter)
+        fen = fen.concat(pieceLetter);
+      }
+    }
+    if (count != 0) {
+      fen = fen.concat(count.toString());
+      count = 0;
+    }
+    if (i < board.length - 1) {
+      fen = fen.concat("/");
+    }
+  }
+  return fen;
+};

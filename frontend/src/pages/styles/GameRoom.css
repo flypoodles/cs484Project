@@ -1,0 +1,12 @@
+#GameRoom {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#leftPanel {
+  /* flex: 1; */
+}
+
+#rightPanel {
+  flex: 1;
+}

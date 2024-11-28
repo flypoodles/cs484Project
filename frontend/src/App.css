@@ -1,0 +1,14 @@
+html {
+  min-height: 100vh;
+}
+body {
+  width: 100%;
+  margin: 0;
+  background-color: #ffe5b4;
+}
+* {
+  box-sizing: border-box;
+}
+/* #root {
+  min-height: 100vh;
+} */
