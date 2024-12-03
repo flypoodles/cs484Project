@@ -79,22 +79,19 @@ export const roomEvent = (
     console.log(`${user.username} leave room`);
 
     const theRoom = rooms.get(user.roomNumber);
-    // if user is alone in room then disconnect user and delete room
+    // if user is alone in room then delete room
     if (theRoom?.player.length == 1) {
       if (user.roomNumber != "") {
         console.log("leave room: user alone in room");
-        socket.disconnect(true); // disconnect user
-        users.delete(user.id);
         rooms.delete(user.roomNumber); // delete the room
+        user.roomNumber = ""
       }
     }
-    // if room has two players then disconnect one user, send gameStatus "end" to the other user
+    // if room has two players then send gameStatus "end" to the other user
     if (theRoom?.player.length == 2) {
       if (user.roomNumber != "") {
         console.log("leave room: 2 players in room");
-
-        socket.disconnect();
-        users.delete(user.id);
+        user.roomNumber = ""
         theRoom.readyStatus = 0;
         theRoom.player = theRoom.player.filter((usr) => usr.id != user.id);
         const otherSocket = theRoom.player[0].id;

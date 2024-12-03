@@ -2,16 +2,28 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import { User, RoomInfo } from "./type.ts";
 import { socket } from "./socket/socket.ts";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Lobby from "./pages/Lobby.tsx";
 import GameRoom from "./pages/GameRoom.tsx";
 import Welcome from "./pages/Welcome.tsx";
+import { User as AuthUser } from "firebase/auth"
+import { useAuth } from "./contexts/AuthContext.tsx";
+
 function App() {
-  const [userName, setUserName] = useState<string>("");
+  // const [userName, setUserName] = useState<string>("");
   const [user, setUser] = useState<User | null>(null);
   const [room, setRoom] = useState<RoomInfo | null>(null);
   const navigate = useNavigate();
+
+  const { currentUser } = useAuth() as { currentUser: AuthUser | null }
+
   useEffect(() => {
+
+    if (!socket.connected && currentUser) {
+      socket.auth = { username: currentUser.email };
+      socket.connect()
+    }
+
     // socket will call this function if connected
     function onConnect(user: User) {
       setUser(user);
@@ -22,7 +34,6 @@ function App() {
     function onDisconnect() {
       setRoom(null);
       setUser(null);
-      setUserName("");
       navigate("/");
     }
 
@@ -33,7 +44,7 @@ function App() {
       socket.off("onConnect", onConnect);
       socket.off("disconnect", onDisconnect);
     };
-  });
+  }, []);
 
   socket.on("connect_error", (err) => {
     if (err.message === "invalid username") {
@@ -46,18 +57,12 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={
-            <Welcome
-              userNameState={{ userName, setUserName }}
-              socket={socket}
-            />
-          }
-        ></Route>
-
+          element={(!currentUser)? <Welcome socket={socket}/> : <Navigate to="/Lobby" />}
+        />
         <Route
           path="/Lobby"
-          element={<Lobby socket={socket} setRoom={setRoom} user={user} />}
-        ></Route>
+          element={(currentUser)? <Lobby socket={socket} setRoom={setRoom} user={user} /> : <Navigate to="/" />}
+        />
         <Route
           path="/GameRoom"
           element={
@@ -72,7 +77,7 @@ function App() {
               userState={{ user: user, setUser }}
             />
           }
-        ></Route>
+        />
       </Routes>
     </>
   );

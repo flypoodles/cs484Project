@@ -4,5 +4,5 @@ import { io } from "socket.io-client";
 const URL = "http://localhost:3000"; /*import.meta.env.VITE_SERVER_URL; */
 console.log(URL);
 export const socket = io(URL, {
-  autoConnect: false,
+  autoConnect: false, reconnection: false
 });

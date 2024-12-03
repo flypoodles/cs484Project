@@ -6,6 +6,8 @@ import { User } from "../type";
 import { fenToBoard } from "../utils/utils";
 
 export default function BoardSection({
+  board,
+  setBoard,
   socket,
   player,
   playerReady,
@@ -14,6 +16,8 @@ export default function BoardSection({
   gameStatus,
   setGameStatus,
 }: {
+  board: string[][],
+  setBoard: React.Dispatch<React.SetStateAction<string[][]>>
   socket: Socket;
   player: User;
   playerReady: boolean;
@@ -22,7 +26,7 @@ export default function BoardSection({
   gameStatus: boolean;
   setGameStatus: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const [board, setBoard] = useState<string[][]>([]);
+  // const [board, setBoard] = useState<string[][]>([]);
   const [side, setSide] = useState<string>("");
   const [turn, setTurn] = useState(0);
   const [yourTurn, setYourTurn] = useState(false);

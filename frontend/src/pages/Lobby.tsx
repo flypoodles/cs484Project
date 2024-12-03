@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 
 import "./styles/Lobby.css"
+import { useAuth } from "../contexts/AuthContext.tsx";
 
 interface LobbyProp {
   user: User | null;
@@ -16,7 +17,11 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
   const [roomNumber, setRoomNumber] = useState<string>("");
   const [joinError, setJoinError] = useState<boolean>(false);
   const [getError, setError] = useState<string>("");
+
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate();
+
+  const { logout } = useAuth() as { logout: () => Promise<void> }
 
   const handleCreate = () => {
     socket.emit("createRoom");
@@ -42,6 +47,7 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
 
     console.log("creating a room");
   };
+
   const handleJoin = (e: React.FormEvent) => {
     e.preventDefault();
     socket.emit("Join Room Request", roomNumber);
@@ -68,10 +74,21 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
     });
   };
 
+  const handleDisconnect = async () => {
+    try {
+      setLoading(true)
+      await logout()
+      socket.disconnect()
+    } catch (err) {
+      console.log(err)
+    }
+    setLoading(false)
+  }
+
   return (
     <section id="lobby">
       <div className="lobby-content">
-        <button className="disconnectBtn" onClick={() => socket.disconnect()}>Disconnect</button>
+        <button disabled={loading} className="disconnectBtn" onClick={handleDisconnect}>Disconnect</button>
 
         {/* make sure that the user is not null as this point */}
         {user == null ? (

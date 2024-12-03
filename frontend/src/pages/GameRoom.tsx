@@ -1,6 +1,7 @@
 import { User, RoomInfo } from "../type.ts";
 import React, { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 
 import Chat from "../components/Chat.tsx";
 import BoardSection from "../components/BoardSection.tsx";
@@ -27,7 +28,7 @@ const GameRoom: React.FC<roomProp> = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   userState,
 }: roomProp) => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   // const [player, setPlayer] = useState<User>((roomState.room as RoomInfo).player);
   const player = roomState.room.player;
   const [opponent, setOpponent] = useState<User | null>(
@@ -36,6 +37,7 @@ const GameRoom: React.FC<roomProp> = ({
   const [playerReady, setPlayerReady] = useState(false);
   const [opponentReady, setOpponentReady] = useState(false);
   const [gameStatus, setGameStatus] = useState(false);
+  const [board, setBoard] = useState<string[][]>([]);
 
   // waiting = true if there is no opponent, otherwise false
   const [waiting, setWaiting] = useState<boolean>(
@@ -44,6 +46,7 @@ const GameRoom: React.FC<roomProp> = ({
 
   const handleLeaveRoom = () => {
     socket.emit("leave room");
+    navigate("/Lobby")
   };
 
   useEffect(() => {
@@ -65,6 +68,7 @@ const GameRoom: React.FC<roomProp> = ({
         };
         console.log("user join");
         roomState.setRoom(room);
+        setBoard([])
         setWaiting(false);
         setOpponent(room.opponent);
       }
@@ -86,6 +90,8 @@ const GameRoom: React.FC<roomProp> = ({
     <main id="GameRoom">
       <section id="leftPanel">
         <BoardSection
+          board={board}
+          setBoard={setBoard}
           socket={socket}
           player={player}
           playerReady={playerReady}
