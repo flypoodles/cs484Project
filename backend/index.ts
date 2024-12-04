@@ -73,18 +73,27 @@ io.on("connection", (socket) => {
     socket.disconnect();
     const user = users.get(socket.id) as User;
     const theRoom = rooms.get(user.roomNumber);
+    if (theRoom !== undefined) {
 
-    // if the user disconnect when play with other player then notify that other player
-    if (theRoom?.player.length == 2) {
-      if (user.roomNumber !== "") {
-        console.log("user disconnect, notify his opponent")
-        theRoom.readyStatus = 0;
-        theRoom.player = theRoom.player.filter((usr) => usr.id != user.id);
-        const otherSocket = theRoom.player[0].id;
-        console.log(otherSocket);
-        io.to(otherSocket).emit("opponent leave");
+      // if the user disconnect when play with other player then notify that other player
+      if (theRoom?.player.length == 2) {
+        if (user.roomNumber !== "") {
+          console.log("user disconnect, notify his opponent")
+          theRoom.readyStatus = 0;
+          theRoom.player = theRoom.player.filter((usr) => usr.id != user.id);
+          const otherSocket = theRoom.player[0].id;
+          console.log(otherSocket);
+          io.to(otherSocket).emit("opponent leave");
+        }
       }
-    }
+      else {
+        if (user.roomNumber !== "") {
+          console.log(`user leaves: ${theRoom?.roomNumber}. Delete room`)
+          rooms.delete(user.roomNumber)
+        }
+      }
+    } 
+
 
     // delete user
     users.delete(socket.id);
