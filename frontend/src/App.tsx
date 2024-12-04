@@ -61,11 +61,19 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={(!currentUser)? <Welcome socket={socket}/> : <Navigate to="/Lobby" />}
+          element={
+            (!currentUser)? // if user is not authenticated then direct them to Welcome page to login, otherwise redirect them to lobby
+              <Welcome socket={socket}/> 
+            : 
+              <Navigate to="/Lobby" />}
         />
         <Route
           path="/Lobby"
-          element={(currentUser)? <Lobby socket={socket} setRoom={setRoom} user={user} /> : <Navigate to="/" />}
+          element={
+            (currentUser)? // only allow user to enter this path if user is authenticated
+              <Lobby socket={socket} setRoom={setRoom} user={user} /> 
+            : 
+              <Navigate to="/" />}
         />
         <Route
           path="/Register"
@@ -74,16 +82,19 @@ function App() {
         <Route
           path="/GameRoom"
           element={
-            <GameRoom
-              socket={socket}
-              roomState={
-                { room: room, setRoom } as {
-                  room: RoomInfo;
-                  setRoom: React.Dispatch<React.SetStateAction<RoomInfo>>;
+            (currentUser && room)? // only allow user to enter this path if user is authenticated and user created a room
+              <GameRoom
+                socket={socket}
+                roomState={
+                  { room: room, setRoom } as {
+                    room: RoomInfo;
+                    setRoom: React.Dispatch<React.SetStateAction<RoomInfo>>;
+                  }
                 }
-              }
-              userState={{ user: user, setUser }}
-            />
+                userState={{ user: user, setUser }}
+              />
+            : 
+              <Navigate to="/" />
           }
         />
       </Routes>

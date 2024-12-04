@@ -50,6 +50,11 @@ export const roomEvent = (
       return;
     }
 
+    if (theRoom.player[0].id == socket.id) { // prevent two sockets that have similar id to join the same room
+      socket.emit("Join Error", "You are currently in that room!")
+      return
+    }
+
     const currentUser: User | undefined = users.get(socket.id);
     if (currentUser == undefined) {
       socket.emit("Join Error", "unable to find the user");
@@ -77,9 +82,12 @@ export const roomEvent = (
     // get the first room that is available
     let availableRoom: RoomInfo | null | undefined = null
     for (const roomId of rooms.keys()) {
-      if (rooms.get(roomId)?.player.length === 1) {
-        availableRoom = rooms.get(roomId)
-        break
+      const currRoom = rooms.get(roomId)
+      if (currRoom?.player.length === 1) {
+        if (currRoom.player[0].id !== socket.id) { // not allow the socket to join the room that the socket is already in
+          availableRoom = currRoom
+          break
+        }
       }
     }
     if (!availableRoom) {

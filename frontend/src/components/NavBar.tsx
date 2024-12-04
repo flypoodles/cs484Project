@@ -26,7 +26,7 @@ export default function NavBar({socket}: {
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        Chiness Chess
+        Chinese Chess
       </div>
       <div className="navbar-right">
         <button disabled={loading} className="navbar-profile">{profile?.username || ""}</button>
