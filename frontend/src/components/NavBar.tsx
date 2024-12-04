@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import "./styles/NavBar.css"
 import { useState } from "react";
 import { Socket } from "socket.io-client";
@@ -9,7 +9,7 @@ export default function NavBar({socket}: {
 }) {
 
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   const { logout, profile } = useAuth() as AuthContextType
 
   const handleSignout = async () => {
@@ -25,7 +25,7 @@ export default function NavBar({socket}: {
 
   return (
     <nav className="navbar">
-      <div onClick={() => navigate("/Lobby")} className="navbar-left">
+      <div className="navbar-left">
         Chiness Chess
       </div>
       <div className="navbar-right">
