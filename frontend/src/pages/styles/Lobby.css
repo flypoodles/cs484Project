@@ -1,7 +1,9 @@
 #lobby {
   width: 100%;
   display: flex;
-  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
 }
 
 .lobby-content {
@@ -13,10 +15,6 @@
   max-width: 100%;
 }
 
-.disconnectBtn {
-  align-self: flex-start;
-  padding: 4px 8px;
-}
 .lobby-options > button:last-child {
   margin-left: 10px;
 }

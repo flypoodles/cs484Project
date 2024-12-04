@@ -1,0 +1,34 @@
+.navbar {
+  padding: 0 40px;
+  background-color: black;
+  color: white;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 45px;
+}
+
+.navbar-left {
+  font-size: 1.5em;
+}
+.navbar-right {
+  height: 100%;
+  display: flex;
+}
+.navbar-profile {
+  color: white;
+  background-color: blue;
+  border-right: 1px solid white;
+}
+.navbar-profile:hover {
+  filter:brightness(80%);
+}
+.navbar-signout {
+  color: white;
+  background-color: orange;
+ 
+}
+.navbar-signout:hover {
+  filter: brightness(80%);
+}

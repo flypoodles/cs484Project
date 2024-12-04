@@ -7,6 +7,7 @@ import Chat from "../components/Chat.tsx";
 import BoardSection from "../components/BoardSection.tsx";
 
 import "./styles/GameRoom.css";
+import NavBar from "../components/NavBar.tsx";
 
 interface RoomState {
   room: RoomInfo;
@@ -88,6 +89,7 @@ const GameRoom: React.FC<roomProp> = ({
 
   return (
     <main id="GameRoom">
+      <NavBar socket={socket} />
       <section id="leftPanel">
         <BoardSection
           board={board}

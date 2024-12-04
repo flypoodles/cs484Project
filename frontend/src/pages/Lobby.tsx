@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 
 import "./styles/Lobby.css"
-import { useAuth } from "../contexts/AuthContext.tsx";
+import { AuthContextType, useAuth } from "../contexts/AuthContext.tsx";
+import NavBar from "../components/NavBar.tsx";
 
 interface LobbyProp {
   user: User | null;
@@ -18,10 +19,7 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
   const [joinError, setJoinError] = useState<boolean>(false);
   const [getError, setError] = useState<string>("");
 
-  const [loading, setLoading] = useState(false)
   const navigate = useNavigate();
-
-  const { logout } = useAuth() as { logout: () => Promise<void> }
 
   const handleCreate = () => {
     socket.emit("createRoom");
@@ -74,22 +72,10 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
     });
   };
 
-  const handleDisconnect = async () => {
-    try {
-      setLoading(true)
-      await logout()
-      socket.disconnect()
-    } catch (err) {
-      console.log(err)
-    }
-    setLoading(false)
-  }
-
   return (
     <section id="lobby">
+      <NavBar socket={socket} />
       <div className="lobby-content">
-        <button disabled={loading} className="disconnectBtn" onClick={handleDisconnect}>Disconnect</button>
-
         {/* make sure that the user is not null as this point */}
         {user == null ? (
           <h1>Loading Lobby...</h1>

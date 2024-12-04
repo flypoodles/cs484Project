@@ -6,7 +6,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore"
 
 import CircularProgress from '@mui/material/CircularProgress';
 
-interface AuthContextType {
+export interface AuthContextType {
   register: (email: string, password: string) => Promise<UserCredential>,
   login: (email: string, password: string) => Promise<UserCredential>,
   logout: () => Promise<void>,
