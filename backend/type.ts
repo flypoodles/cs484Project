@@ -21,6 +21,8 @@ export interface GameState {
   turn: number;
   red: User;
   black: User;
+  deadPieces: string[];
+  finished: boolean;
 }
 
 export interface MoveInfo {

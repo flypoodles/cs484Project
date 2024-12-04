@@ -8,6 +8,7 @@ interface Result {
 enum faction {
   red = 0,
   black,
+  none,
 }
 
 enum pieceType {
@@ -25,6 +26,46 @@ interface PieceInfo {
   faction: faction;
   pieceType: pieceType;
 }
+
+export function checkKing(fenBoard: string, pieceFaction: string): boolean {
+  const curFaction: faction =
+    pieceFaction === "r" ? faction.red : faction.black;
+  const board: string[][] = fenToBoard(fenBoard);
+
+  const enemyKing: string = curFaction === faction.red ? "bk" : "rk";
+  // find the location of the enemy king
+  const targetLocation: number[] = [];
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[0].length; j++) {
+      if (board[i][j] === enemyKing) {
+        targetLocation.push(i);
+        targetLocation.push(j);
+
+        break;
+      }
+    }
+  }
+
+  // find every piece on the board and see if they can kill the enemy king
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[0].length; j++) {
+      const curPiece: PieceInfo = constructPieceInfo(board[i][j]);
+      if (curPiece.faction == curFaction) {
+        const moveInfo: MoveInfo = {
+          initialPosition: [i, j],
+          destination: targetLocation,
+          board: fenBoard,
+        };
+        if (validateMove(moveInfo).success) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
 export function validateMove(currentState: MoveInfo): Result {
   const board: string[][] = fenToBoard(currentState.board);
   const initialPosition: number[] = currentState.initialPosition;
@@ -92,7 +133,11 @@ function insidePalace(position: number[], theFaction: faction): boolean {
   return column >= 3 && column <= 5 && row <= 9 && row >= 7;
 }
 function constructPieceInfo(curPiece: String): PieceInfo {
+  if (curPiece === "") {
+    return { faction: faction.none, pieceType: pieceType.unknown };
+  }
   const Piecefaction = curPiece[0] === "b" ? faction.black : faction.red;
+
   //rhegkgehr p1p1p1p1p/1c5c1
   const PieceType: pieceType = (function (): pieceType {
     switch (curPiece[1]) {

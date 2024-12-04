@@ -16,8 +16,8 @@ export default function BoardSection({
   gameStatus,
   setGameStatus,
 }: {
-  board: string[][],
-  setBoard: React.Dispatch<React.SetStateAction<string[][]>>
+  board: string[][];
+  setBoard: React.Dispatch<React.SetStateAction<string[][]>>;
   socket: Socket;
   player: User;
   playerReady: boolean;
@@ -31,6 +31,8 @@ export default function BoardSection({
   const [turn, setTurn] = useState(0);
   const [yourTurn, setYourTurn] = useState(false);
   const [error, setError] = useState("");
+  const [deadPieces, setDeadPieces] = useState(""); // NEWLY ADDED
+  const [isCheck, setCheck] = useState(false); // NEWLY ADDED
   useEffect(() => {
     if (!gameStatus) {
       socket.on(
@@ -56,12 +58,39 @@ export default function BoardSection({
     } else {
       socket.on(
         "end turn",
-        (yourTurnNew: boolean, turnNew: number, boardFenNew: string) => {
+        (
+          yourTurnNew: boolean,
+          turnNew: number,
+          boardFenNew: string,
+          deadPieces: string,
+          checked: boolean
+        ) => {
           setError("");
           setYourTurn(yourTurnNew);
           setTurn(turnNew);
           const newBoard = fenToBoard(boardFenNew);
           setBoard(newBoard.board);
+          setDeadPieces(deadPieces); // NEWLY ADDED
+          setCheck(checked); // NEWLY ADDED
+        }
+      );
+
+      // NEWLY ADDED
+      socket.on(
+        "end",
+        (
+          winner: string,
+          redUser: string,
+          blackUser: string,
+          turn: number,
+          boardFenNew: string,
+          deadPieces: string
+        ) => {
+          setTurn(turn);
+          setDeadPieces(deadPieces);
+          const newBoard = fenToBoard(boardFenNew);
+          setBoard(newBoard.board);
+          alert(`winner : ${winner}`);
         }
       );
 
@@ -77,6 +106,7 @@ export default function BoardSection({
         socket.removeAllListeners("start");
       } else {
         socket.removeAllListeners("end turn");
+        socket.removeAllListeners("end");
         socket.removeAllListeners("move error");
       }
     };
@@ -99,8 +129,9 @@ export default function BoardSection({
       <div style={yourTurn ? { fontWeight: "bold" } : {}}>
         You: {player.username} {playerReady && !gameStatus ? "(ready)" : ""}
       </div>
-
       {error !== "" && <div>{error}</div>}
+      {deadPieces !== "" && <div>{deadPieces}</div>}
+      {isCheck && <div>checked: {isCheck}</div>}
     </section>
   );
 }

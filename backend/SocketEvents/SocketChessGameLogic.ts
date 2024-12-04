@@ -1,12 +1,13 @@
 import { Socket, Server } from "socket.io";
 import { User, RoomInfo, GameState, MoveInfo } from "../type.ts";
 import {
+  getTheDeadPiece,
   invertFen,
   normalize,
   retrieveInformation,
   updateBoard,
 } from "../util.ts";
-import { validateMove } from "../gameLogics/ValidateMove.ts";
+import { validateMove, checkKing } from "../gameLogics/ValidateMove.ts";
 
 export const GameEvent = (
   io: Server,
@@ -46,6 +47,8 @@ export const GameEvent = (
       turn: 0,
       red: room.player.at(colorAssignRandomNumber % 2) as User,
       black: room.player.at((colorAssignRandomNumber + 1) % 2) as User,
+      deadPieces: [],
+      finished: false,
     };
     room.gameState = newGame;
 
@@ -86,7 +89,7 @@ export const GameEvent = (
         return;
       }
 
-      const gameState = room.gameState as GameState;
+      const gameState: GameState = room.gameState as GameState;
       const currentPlayer: User =
         gameState.turn % 2 ? gameState.red : gameState.black;
       if (currentPlayer.id != user.id) {
@@ -137,6 +140,11 @@ export const GameEvent = (
       }
 
       try {
+        const deadPiece: string = getTheDeadPiece(moveInfo);
+        if (deadPiece !== "") {
+          gameState.deadPieces.push(deadPiece);
+        }
+
         const newBoard: string = updateBoard(
           // this function throws error so we need to catch it
           gameState.board,
@@ -144,19 +152,47 @@ export const GameEvent = (
           moveInfo.destination,
           piece
         );
+
+        // Server sent (“end”, winner: “red” or “black”,red ,black, turn, board, list of dead pieces )
+        if (deadPiece !== "") {
+          if (deadPiece === "rk" || deadPiece === "bk") {
+            const winner = deadPiece === "rk" ? "black" : "red";
+            gameState.board = newBoard;
+            gameState.turn++;
+            io.to(room.roomNumber).emit(
+              "end",
+              winner,
+              room.gameState?.red.username,
+              room.gameState?.black.username,
+              gameState.turn,
+              gameState.board,
+              gameState.deadPieces.join(" ")
+            );
+            return;
+          }
+        }
+
+        // see if the piece at the new location checked the king or not
+        const check: boolean =
+          checkKing(newBoard, "r") || checkKing(newBoard, "b");
+
         gameState.board = newBoard;
         gameState.turn++;
         io.to(gameState.red.id).emit(
           "end turn",
           gameState.turn % 2 ? true : false,
           gameState.turn,
-          gameState.board
+          gameState.board,
+          gameState.deadPieces.join(" "),
+          check
         );
         io.to(gameState.black.id).emit(
           "end turn",
           gameState.turn % 2 ? false : true,
           gameState.turn,
-          invertFen(gameState.board)
+          invertFen(gameState.board),
+          gameState.deadPieces.join(" "),
+          check
         );
       } catch (error) {
         console.log(error);
