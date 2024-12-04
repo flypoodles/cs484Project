@@ -73,6 +73,47 @@ export const roomEvent = (
     socket.emit("Joined", theRoom.player[0], theRoom.player[1], roomNumber);
   });
 
+  socket.on("JoinAnyRoomRequest", () => {
+    // get the first room that is available
+    let availableRoom: RoomInfo | null | undefined = null
+    for (const roomId of rooms.keys()) {
+      if (rooms.get(roomId)?.player.length === 1) {
+        availableRoom = rooms.get(roomId)
+        break
+      }
+    }
+    if (!availableRoom) {
+      // if there is no available room then send join room failed
+      console.log("There is no room to join")
+      socket.emit("Join Error", "There is no room to join")
+      return
+    }
+
+    // Add user to the room
+    const roomNumber = availableRoom.roomNumber
+    const currentUser: User | undefined = users.get(socket.id);
+    if (currentUser == undefined) {
+      socket.emit("Join Error", "unable to find the user");
+      return;
+    }
+
+    console.log("joining a room for", currentUser);
+    console.log("room number: ", roomNumber);
+
+    // assign user with the room number and updated the room list
+    currentUser.roomNumber = roomNumber;
+    availableRoom.player.push(currentUser);
+
+    // join the room with the roomNumber
+    socket.join(roomNumber);
+
+    socket
+      .to(roomNumber)
+      .emit("User Joined", availableRoom.player[1], availableRoom.player[0], roomNumber);
+    // send the newRoom back to the client socket
+    socket.emit("Joined", availableRoom.player[0], availableRoom.player[1], roomNumber);
+  })
+
   // handle request to leave the room.
   socket.on("leave room", () => {
     const user = users.get(socket.id) as User;

@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 
 import "./styles/Lobby.css"
-import { AuthContextType, useAuth } from "../contexts/AuthContext.tsx";
 import NavBar from "../components/NavBar.tsx";
 
 interface LobbyProp {
@@ -72,6 +71,31 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
     });
   };
 
+  const handleJoinRandomRoom = () => {
+    socket.emit("JoinAnyRoomRequest")
+
+    // if the user tried to join a room, the user socket will receive this.
+    socket.on(
+      "Joined",
+      (opponent: User | null, player: User, roomNumber: string) => {
+        const room: RoomInfo = {
+          opponent: opponent,
+          player: player,
+          roomNumber: roomNumber,
+        };
+        setRoom(room);
+
+        // redirect to gameroom
+        navigate("/GameRoom");
+      }
+    );
+
+    socket.on("Join Error", (err: string) => {
+      setJoinError(true);
+      setError(err);
+    });
+  }
+
   return (
     <section id="lobby">
       <NavBar socket={socket} />
@@ -83,7 +107,7 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
           <h1>Welcome {user.username}!</h1>
         )}
 
-        {joinError && <h1> Join error: {getError}</h1>}
+        {joinError && <h1 style={{color: "red"}}> Join error: {getError}</h1>}
         {joinScreen ? (
           <>
             <form className="form-joinRoom" onSubmit={handleJoin}>
@@ -103,6 +127,8 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
           <div className="lobby-options">
             <button onClick={() => handleCreate()}>Create</button>
             <button onClick={() => setJoinScreen(true)}>Join a room</button>
+            <button onClick={handleJoinRandomRoom}>Join random</button>
+            <button>Spectate a game</button>
           </div>
         )}
       </div>

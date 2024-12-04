@@ -15,9 +15,12 @@
   max-width: 100%;
 }
 
-.lobby-options > button:last-child {
-  margin-left: 10px;
+.lobby-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
 }
+
 .lobby-options > button {
   padding: 4px 8px;
 }
