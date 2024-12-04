@@ -1,61 +1,107 @@
 import React, { FC, useState } from "react";
 import { Socket } from "socket.io-client";
-import { auth, provider } from "../firebase/firebase"
+import { auth, db, provider } from "../firebase/firebase"
 import "./styles/Welcome.css";
+import GoogleIcon from "/src/icons/GoogleIcon"
 import { signInWithPopup, UserCredential } from "firebase/auth";
 // import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { Link } from "react-router-dom";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { UserProfile } from "../type";
 // I am wrapping all state variables in an interface, so it is clear to see which function belongs to which state.
 // state username state.
 
 // prop interface
 interface Props {
-  // Define your component's props here
   socket: Socket;
 }
 
 const Welcome: FC<Props> = ({ socket }) => {
   // const navigate = useNavigate()
-  const [isLoading, setLoading] = useState<boolean>(false);
-  const [username, setUsername] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingAuthenticate, setLoadingAuthenticate] = useState(false)
+  const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
+  const [error, setError] = useState("")
 
-  const { login } = useAuth() as { login: (email: string, password: string) => Promise<UserCredential> }
+  const { login, setProfile } = useAuth() as { 
+    login: (email: string, password: string) => Promise<UserCredential> 
+    setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
+  }
 
   const handleConnection = (e: React.FormEvent) => {
     // after the user has typed in a username, the socket will establish connection with the server.
     e.preventDefault();
-    login(username, password).then((result) => {
-      console.log(result)
-      socket.auth = { username: username };
+    setError("")
+    setLoadingAuthenticate(true); 
+
+    login(email, password).then(async (result) => {
+      const docRef = doc(db, "Users", result.user.uid)
+      const docSnap = await getDoc(docRef)
+      const newProfile = docSnap.data() as UserProfile
+      setProfile(newProfile)
+      socket.auth = { username: newProfile.username };
       socket.connect();
-      setLoading(true);
       // redirect route to the lobby
+      setLoading(true) // set load to wait for socket server
+
+    }).catch(err => {
+      console.error(err)
+      setError("Error: Login failed. Incorrect password or email")
+    }).finally(() => {
+      setLoadingAuthenticate(false)
     })
   };
 
   const handleSignInGoogle = () => {
-    signInWithPopup(auth, provider).then((result) => {
-      console.log(result)
+    setError("")
+    setLoadingAuthenticate(true); 
+
+    signInWithPopup(auth, provider).then(async (result) => {
       const user = result.user
-      if (user) {
-        socket.auth = { username: user.email }
-        socket.connect()
-        setLoading(true)
+      
+      // look up in firestore for username. If not exist then create a new one
+      const docRef = doc(db, "Users", user.uid)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        const { email, username, photo } = docSnap.data() as UserProfile
+        console.log("username already exists in firestore:", username)
+        setProfile({email, username, photo})
+        socket.auth = { username: username}
       }
+      else {
+        console.log("username not in firestore. Adding to firestore")
+        await setDoc(doc(db, "Users", user.uid), {
+          email: user.email,
+          username: user.displayName,
+          photo: "",
+        })
+        setProfile({email: user.email as string, username: user.displayName || "", photo: ""})
+        socket.auth = { username: user.displayName}
+      }
+      socket.connect()
+      setLoading(true)
+    }).catch((err) => {
+      console.error(err)
+      setError("Error: Login failed. Incorrect password or email")
+    }).finally(() => {
+      setLoadingAuthenticate(false)
     })
   }
 
   return (
     <div id="welcome">
-      {isLoading ? (
+      {loading ? (
         <Loading />
       ) : (
         <EnterInfo
+          loadingAuthenticate={loadingAuthenticate}
+          error={error}
           handleConnection={handleConnection}
           handleSignInGoogle={handleSignInGoogle}
-          username={username}
-          setUsername={setUsername}
+          email={email}
+          setEmail={setEmail}
           password={password}
           setPassword={setPassword}
         />
@@ -65,32 +111,38 @@ const Welcome: FC<Props> = ({ socket }) => {
 };
 
 function EnterInfo({
+  loadingAuthenticate,
+  error,
   handleConnection,
   handleSignInGoogle,
-  username,
-  setUsername,
+  email,
+  setEmail,
   password,
   setPassword,
 }: {
+  loadingAuthenticate: boolean,
+  error: string,
   handleConnection: (e: React.FormEvent) => void,
   handleSignInGoogle: () => void,
-  username: string,
-  setUsername: React.Dispatch<React.SetStateAction<string>>,
+  email: string,
+  setEmail: React.Dispatch<React.SetStateAction<string>>,
   password: string,
   setPassword: React.Dispatch<React.SetStateAction<string>>
 }) {
 
   return (
-    <>
+    <div id="Welcome">
+      <h1>Welcome to Chess game!</h1>
+      {loadingAuthenticate && <div>loging in</div>}
+      {error && <div className="login-error">Error: {error}</div>}
       <form className="loginForm" onSubmit={handleConnection}>
-        <h1>Welcome to Chess game!</h1>
-        <h3>Login</h3>
+        <h2 style={{marginBottom: "10px", marginTop: "0px"}}>Login</h2>
         <label>Username / Gmail</label>
         <input
           type="text"
-          value={username}
+          value={email}
           placeholder="Enter username"
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
         <label>Password</label>
@@ -101,11 +153,14 @@ function EnterInfo({
           placeholder="Enter password"
           required
         />
-        <button type="submit">Connect</button>
+        <button disabled={loadingAuthenticate} className="login-connect-btn" type="submit">Connect</button>
       </form>
-      <div>-- Or sign in with --</div>
-      <button type="button" onClick={handleSignInGoogle} >Google</button>
-    </>
+      <div style={{marginTop: "10px"}}>Don't have an account? Register a new account: <Link to="/Register">Registration</Link></div>
+      <div style={{marginTop: "5px"}}>-- Or sign in with --</div>
+      <button disabled={loadingAuthenticate} className="login-google-btn" type="button" onClick={handleSignInGoogle} >
+        <span style={{marginRight: "10px"}}>Google</span> <GoogleIcon />
+      </button>
+    </div>
   );
 }
 function Loading() {

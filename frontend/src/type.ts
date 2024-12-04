@@ -27,3 +27,9 @@ export interface Move {
   from: [number, number]; // row, col
   to: [number, number]; // row, col
 }
+
+export interface UserProfile { // profile store in firestore db
+  email: string,
+  username: string,
+  photo: string,
+}

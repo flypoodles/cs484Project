@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import { User, RoomInfo } from "./type.ts";
+import { User, RoomInfo, UserProfile } from "./type.ts";
 import { socket } from "./socket/socket.ts";
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Lobby from "./pages/Lobby.tsx";
@@ -8,6 +8,7 @@ import GameRoom from "./pages/GameRoom.tsx";
 import Welcome from "./pages/Welcome.tsx";
 import { User as AuthUser } from "firebase/auth"
 import { useAuth } from "./contexts/AuthContext.tsx";
+import Register from "./pages/Register.tsx";
 
 function App() {
   // const [userName, setUserName] = useState<string>("");
@@ -15,12 +16,15 @@ function App() {
   const [room, setRoom] = useState<RoomInfo | null>(null);
   const navigate = useNavigate();
 
-  const { currentUser } = useAuth() as { currentUser: AuthUser | null }
+  const { currentUser, profile } = useAuth() as { 
+    currentUser: AuthUser | null
+    profile: UserProfile
+  }
 
   useEffect(() => {
 
     if (!socket.connected && currentUser) {
-      socket.auth = { username: currentUser.email };
+      socket.auth = { username: profile.username };
       socket.connect()
     }
 
@@ -62,6 +66,10 @@ function App() {
         <Route
           path="/Lobby"
           element={(currentUser)? <Lobby socket={socket} setRoom={setRoom} user={user} /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/Register"
+          element={<Register socket={socket} />}
         />
         <Route
           path="/GameRoom"

@@ -92,7 +92,7 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
 
         {/* make sure that the user is not null as this point */}
         {user == null ? (
-          <h1>Error: user is null</h1>
+          <h1>Loading Lobby...</h1>
         ) : (
           <h1>Welcome {user.username}!</h1>
         )}

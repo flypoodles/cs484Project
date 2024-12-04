@@ -1,4 +1,4 @@
-#Welcome {
+#Register {
   padding-top: 60px;
 
   width: 100%;
@@ -7,7 +7,14 @@
   flex-direction: column;
   align-items: center;
 }
-.loginForm {
+
+.register-error {
+  font-size: 20px;
+  color: red;
+  margin-top: 10px;
+}
+
+.register-form {
   /* width: 100%; */
   display: flex; 
   flex-direction: column;
@@ -17,32 +24,18 @@
   width: 400px;
   padding: 20px;
 }
-.loginForm > label {
+.register-form > label {
   margin-top: 15px;
   margin-bottom: 5px;
 }
-.loginForm > input {
+.register-form > input {
   display: block;
   padding: 10px;
   width: 250px;
   max-width: 100%;
 }
-.login-connect-btn {
-  margin-top: 15px;
+.register-btn {
+  margin-top: 10px;
   padding: 4px 8px;
   /* margin-bottom: 15px; */
-}
-
-.login-google-btn {
-  margin-top: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 16px;
-  font-size: 16px;
-}
-.login-error {
-  font-size: 20px;
-  color: red;
-  margin-top: 10px;
 }
