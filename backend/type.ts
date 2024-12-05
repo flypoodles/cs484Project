@@ -1,6 +1,7 @@
 export interface User {
   id: string;
   username: string;
+  photo: string; //url
   roomNumber: string;
 }
 

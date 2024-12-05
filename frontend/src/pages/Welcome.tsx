@@ -41,7 +41,7 @@ const Welcome: FC<Props> = ({ socket }) => {
       const docSnap = await getDoc(docRef)
       const newProfile = docSnap.data() as UserProfile
       setProfile(newProfile)
-      socket.auth = { username: newProfile.username };
+      socket.auth = { username: newProfile.username, photo: newProfile.photo };
       socket.connect();
       // redirect route to the lobby
       setLoading(true) // set load to wait for socket server
@@ -68,7 +68,7 @@ const Welcome: FC<Props> = ({ socket }) => {
         const { email, username, photo } = docSnap.data() as UserProfile
         console.log("username already exists in firestore:", username)
         setProfile({email, username, photo})
-        socket.auth = { username: username}
+        socket.auth = { username: username, photo: user.photoURL || ""}
       }
       else {
         console.log("username not in firestore. Adding to firestore")
@@ -78,7 +78,7 @@ const Welcome: FC<Props> = ({ socket }) => {
           photo: "",
         })
         setProfile({email: user.email as string, username: user.displayName || "", photo: ""})
-        socket.auth = { username: user.displayName}
+        socket.auth = { username: user.displayName, photo: user.photoURL || ""}
       }
       socket.connect()
       setLoading(true)

@@ -5,6 +5,7 @@ import { PlayerCard, OpponentCard} from "../../components/PlayerCard"
 import { Socket } from "socket.io-client";
 import { User } from "../../type";
 import { fenToBoard, processDeadpiecesStr } from "../../utils/utils";
+import { AuthContextType, useAuth } from "../../contexts/AuthContext";
 
 export default function BoardSection({
   board,
@@ -45,6 +46,9 @@ export default function BoardSection({
   const [side, setSide] = useState<string>("");
   const [playerDeadPieces, setPlayerDeadPieces] = useState<string[]>([]); // NEWLY ADDED
   const [oppDeadPieces, setOppDeadPieces] = useState<string[]>([])
+
+  const { profile, currentUser } = useAuth() as AuthContextType
+
   useEffect(() => {
     if (!gameStatus) {
       socket.on(
@@ -137,7 +141,7 @@ export default function BoardSection({
 
   return (
     <section>
-      <OpponentCard photo="" username={opponent?.username} deadPieces={playerDeadPieces} ready={opponentReady} gameStatus={gameStatus} oppTurn={!yourTurn}/>
+      <OpponentCard photo={opponent?.photo || ""} username={opponent?.username} deadPieces={playerDeadPieces} ready={opponentReady} gameStatus={gameStatus} oppTurn={!yourTurn}/>
       <div style={{height: "10px"}}></div>
       <Board
         board={board}
@@ -147,7 +151,7 @@ export default function BoardSection({
         setYourTurn={setYourTurn}
       />
       <div style={{height: "10px"}}></div>
-      <PlayerCard photo="" username={player?.username} deadPieces={oppDeadPieces} ready={playerReady} gameStatus={gameStatus} yourTurn={yourTurn} />
+      <PlayerCard photo={profile?.photo || currentUser?.photoURL || ""} username={player?.username} deadPieces={oppDeadPieces} ready={playerReady} gameStatus={gameStatus} yourTurn={yourTurn} />
     </section>
   );
 }

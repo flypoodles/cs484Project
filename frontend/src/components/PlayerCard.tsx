@@ -12,7 +12,7 @@ export function PlayerCard({photo, username, deadPieces, ready, gameStatus, your
   
   return (
     <div className="player-card" style={(!yourTurn && gameStatus)? {backgroundColor: "rgb(105, 90, 62)"} : {}}>
-      <img className="player-card-image" src={(photo === "") ? "/anonymous-avatar.webp" : photo} alt="player's photo" />
+      <img style={(!yourTurn && gameStatus)? {filter: "brightness(40%)"} : {}} className="player-card-image" src={(photo === "") ? "/anonymous-avatar.webp" : photo} alt="player's photo" />
       <div className="player-card-info">
         <div style={{ fontWeight: "bold" }}>You: {username} {(ready && !gameStatus) ? "(ready)" : ""}</div>
         <ul className="player-card-deadPieces">
@@ -33,7 +33,7 @@ export function OpponentCard({photo, username, deadPieces, ready, gameStatus, op
 }) {
   return (
     <div className="opponent-card" style={(!oppTurn && gameStatus)? {backgroundColor: "rgb(105, 90, 62)"} : {}}>
-      <img className="opponent-card-image" src={(photo === "") ? "/anonymous-avatar.webp" : photo} alt="opponent's photo" />
+      <img style={(!oppTurn && gameStatus)? {filter: "brightness(40%)"} : {}} className="opponent-card-image" src={(photo === "") ? "/anonymous-avatar.webp" : photo} alt="opponent's photo" />
       <div className="opponent-card-info">
         <div style={{ fontWeight: "bold" }}>Opponent: {username} {(ready && !gameStatus) ? "(ready)" : ""}</div>
         <ul className="opponent-card-deadPieces">

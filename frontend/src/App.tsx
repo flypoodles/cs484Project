@@ -24,7 +24,7 @@ function App() {
   useEffect(() => {
 
     if (!socket.connected && currentUser) {
-      socket.auth = { username: profile.username };
+      socket.auth = { username: profile.username, photo: currentUser.photoURL || "" };
       socket.connect()
     }
 

@@ -34,7 +34,7 @@ io.use((socket, next) => {
   }
 
   console.log("a user connected");
-  console.log("username: ", username);
+  console.log("username: ", username, "photo: ", socket.handshake.auth.photo);
 
   next();
 });
@@ -52,6 +52,7 @@ io.on("connection", (socket) => {
   const newUser: User = {
     id: socket.id,
     username: socket.handshake.auth.username,
+    photo: socket.handshake.auth.photo,
     roomNumber: "",
   };
   users.set(socket.id, newUser);

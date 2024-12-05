@@ -46,7 +46,7 @@ export default function Register({ socket } : {
         photo: "",
       })
       console.log(`add user ${email} to firestore. Now connect to socket`)
-      socket.auth = { username: username };
+      socket.auth = { username: username, photo: user.photoURL || "" };
       socket.connect();
       navigate("/Lobby")
 

@@ -17,15 +17,9 @@ export default function Board({board, side, socket, yourTurn, setYourTurn} : {
   const [firstPiece, setFirstPiece] = useState<PieceType>({piece: "none", row: -1, col: -1})
   const [finalPiece, setFinalPiece] = useState<PieceType>({piece: "none", row: -1, col: -1})
 
-  console.log("---")
-  console.log("first:" + firstPiece.piece + firstPiece.row + firstPiece.col)
-  console.log("second:" + finalPiece.piece + finalPiece.row + finalPiece.col)
-
   useEffect(() => {
     if (finalPiece.piece !== "none") {
-      console.log(`move ${firstPiece.piece} from ${firstPiece.row}-${firstPiece.col} to ${finalPiece.row}-${finalPiece.col}`)
       const boardFen = boardToFen(board)
-      console.log(boardFen)
       socket.emit("move", [firstPiece.row, firstPiece.col], [finalPiece.row, finalPiece.col], firstPiece.piece, boardFen)
       setYourTurn(false)
       setFirstPiece({piece: "none", row: -1, col: -1})
