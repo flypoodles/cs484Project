@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 
 import Board from "./Board";
+import { PlayerCard, OpponentCard} from "./PlayerCard"
 import { Socket } from "socket.io-client";
 import { User } from "../type";
-import { fenToBoard } from "../utils/utils";
+import { fenToBoard, processDeadpiecesStr } from "../utils/utils";
 
 export default function BoardSection({
   board,
@@ -31,7 +32,8 @@ export default function BoardSection({
   const [turn, setTurn] = useState(0);
   const [yourTurn, setYourTurn] = useState(false);
   const [error, setError] = useState("");
-  const [deadPieces, setDeadPieces] = useState(""); // NEWLY ADDED
+  const [playerDeadPieces, setPlayerDeadPieces] = useState<string[]>([]); // NEWLY ADDED
+  const [oppDeadPieces, setOppDeadPieces] = useState<string[]>([])
   const [isCheck, setCheck] = useState(false); // NEWLY ADDED
   useEffect(() => {
     if (!gameStatus) {
@@ -70,7 +72,9 @@ export default function BoardSection({
           setTurn(turnNew);
           const newBoard = fenToBoard(boardFenNew);
           setBoard(newBoard.board);
-          setDeadPieces(deadPieces); // NEWLY ADDED
+          const deadPiecesTuple = processDeadpiecesStr(deadPieces, side)
+          setPlayerDeadPieces(deadPiecesTuple.playerDeadPieces)
+          setOppDeadPieces(deadPiecesTuple.opponentDeadPieces)
           setCheck(checked); // NEWLY ADDED
         }
       );
@@ -87,7 +91,9 @@ export default function BoardSection({
           deadPieces: string
         ) => {
           setTurn(turn);
-          setDeadPieces(deadPieces);
+          const deadPiecesTuple = processDeadpiecesStr(deadPieces, side)
+          setPlayerDeadPieces(deadPiecesTuple.playerDeadPieces)
+          setOppDeadPieces(deadPiecesTuple.opponentDeadPieces)
           const newBoard = fenToBoard(boardFenNew);
           setBoard(newBoard.board);
           alert(`winner : ${winner}`);
@@ -112,13 +118,13 @@ export default function BoardSection({
     };
   }, [socket, gameStatus, setGameStatus, opponent]);
 
+  console.log(`${(opponentReady)? "opponent ready" : "opponent not ready"}`)
+
   return (
     <section>
       <div>Turn: {turn}</div>
-      <div style={!yourTurn ? { fontWeight: "bold" } : {}}>
-        Opponent: {opponent?.username}{" "}
-        {opponentReady && !gameStatus ? "(ready)" : ""}{" "}
-      </div>
+      <OpponentCard photo="" username={opponent?.username} deadPieces={playerDeadPieces} ready={opponentReady} gameStatus={gameStatus} oppTurn={!yourTurn}/>
+      <div style={{height: "10px"}}></div>
       <Board
         board={board}
         side={side === "red" ? "r" : side === "black" ? "b" : ""}
@@ -126,11 +132,10 @@ export default function BoardSection({
         yourTurn={yourTurn}
         setYourTurn={setYourTurn}
       />
-      <div style={yourTurn ? { fontWeight: "bold" } : {}}>
-        You: {player.username} {playerReady && !gameStatus ? "(ready)" : ""}
-      </div>
+      <div style={{height: "10px"}}></div>
+      <PlayerCard photo="" username={player?.username} deadPieces={oppDeadPieces} ready={playerReady} gameStatus={gameStatus} yourTurn={yourTurn} />
       {error !== "" && <div>{error}</div>}
-      {deadPieces !== "" && <div>{deadPieces}</div>}
+      {playerDeadPieces && <div>{playerDeadPieces.toString()}</div>}
       {isCheck && <div>checked: {isCheck}</div>}
     </section>
   );

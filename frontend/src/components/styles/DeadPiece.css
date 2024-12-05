@@ -1,0 +1,49 @@
+/* image of pieces */
+.p-br {
+  background-image: url("/chess-pieces/blackRook.png");
+}
+.p-bh {
+  background-image: url("/chess-pieces/blackHorse.png");
+}
+.p-be {
+  background-image: url("/chess-pieces/blackElephant.png");
+}
+.p-bg {
+  background-image: url("/chess-pieces/blackGuard.png");
+}
+.p-bk {
+  background-image: url("/chess-pieces/blackKing.png");
+}
+.p-bc {
+  background-image: url("/chess-pieces/blackCannon.png");
+}
+.p-bp {
+  background-image: url("/chess-pieces/blackPawn.png");
+}
+.p-rr {
+  background-image: url("/chess-pieces/redRook.png");
+}
+.p-rh {
+  background-image: url("/chess-pieces/redHorse.png");
+}
+.p-re {
+  background-image: url("/chess-pieces/redElephant.png");
+}
+.p-rg {
+  background-image: url("/chess-pieces/redGuard.png");
+}
+.p-rk {
+  background-image: url("/chess-pieces/redKing.png");
+}
+.p-rc {
+  background-image: url("/chess-pieces/redCannon.png");
+}
+.p-rp {
+  background-image: url("/chess-pieces/redPawn.png");
+}
+
+.p-br, .p-bh, .p-be, .p-bg, .p-bk, .p-bc, .p-bp,
+.p-rr, .p-rh, .p-re, .p-rg, .p-rk, .p-rc, .p-rp {
+  background-position: center;
+  background-size: contain;
+}

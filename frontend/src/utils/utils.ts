@@ -84,3 +84,14 @@ export function boardToFen(board: string[][]): string {
   }
   return fen;
 };
+
+// divide deadpieces string into two array: player and opponent
+export function processDeadpiecesStr(deadpieces: string, side: string) { // side is either red or black, a piece begins with a side and end with object. e.g. bc --- "black cannon"
+  const arr = deadpieces.split(" ")
+  const opponentPieces = arr.filter(piece => piece[0] !== side[0])
+  const playerPieces = arr.filter(piece => piece[0] === side[0])
+  return {
+    "opponentDeadPieces": opponentPieces, 
+    "playerDeadPieces": playerPieces
+  }
+} 
