@@ -1,15 +1,13 @@
 import { User, RoomInfo } from "../type.ts";
 import React, { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
-import { useNavigate } from "react-router-dom";
-
-import Chat from "../components/Chat.tsx";
-import BoardSection from "../components/BoardSection.tsx";
 
 import "./styles/GameRoom.css";
 import NavBar from "../components/NavBar.tsx";
+import InfoSection from "./GameRoom/InfoSection.tsx";
+import BoardSection from "./GameRoom/BoardSection.tsx";
 
-interface RoomState {
+export interface RoomState {
   room: RoomInfo;
   setRoom: React.Dispatch<React.SetStateAction<RoomInfo>>;
 }
@@ -29,7 +27,6 @@ const GameRoom: React.FC<roomProp> = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   userState,
 }: roomProp) => {
-  const navigate = useNavigate();
   // const [player, setPlayer] = useState<User>((roomState.room as RoomInfo).player);
   const player = roomState.room.player;
   const [opponent, setOpponent] = useState<User | null>(
@@ -39,16 +36,12 @@ const GameRoom: React.FC<roomProp> = ({
   const [opponentReady, setOpponentReady] = useState(false);
   const [gameStatus, setGameStatus] = useState(false);
   const [board, setBoard] = useState<string[][]>([]);
+  const [turn, setTurn] = useState(0)
 
   // waiting = true if there is no opponent, otherwise false
   const [waiting, setWaiting] = useState<boolean>(
     roomState.room.opponent == null ? true : false
   );
-
-  const handleLeaveRoom = () => {
-    socket.emit("leave room");
-    navigate("/Lobby")
-  };
 
   useEffect(() => {
     socket.on("opponent leave", () => {
@@ -56,6 +49,7 @@ const GameRoom: React.FC<roomProp> = ({
       setGameStatus(false);
       setPlayerReady(false);
       setOpponentReady(false);
+      setOpponent(null)
       setWaiting(true);
     });
 
@@ -92,6 +86,7 @@ const GameRoom: React.FC<roomProp> = ({
       <NavBar socket={socket} />
       <section id="leftPanel">
         <BoardSection
+          setTurn={setTurn}
           board={board}
           setBoard={setBoard}
           socket={socket}
@@ -104,73 +99,21 @@ const GameRoom: React.FC<roomProp> = ({
         />
       </section>
       <section id="rightPanel">
-        {waiting ? (
-          <Waiting roomState={roomState} />
-        ) : (
-          <Ready
-            player={player}
-            setPlayerReady={setPlayerReady}
-            opponent={opponent as User}
-            socket={socket}
-            roomState={roomState}
-            playerReady={playerReady}
-            // gameStatus={gameStatus}
-          />
-        )}
-        <button onClick={handleLeaveRoom}> leave Room</button>
+        <InfoSection 
+          turn={turn}
+          waiting={waiting}
+          roomState={roomState}
+          player={player}
+          playerReady={playerReady}
+          setPlayerReady={setPlayerReady}
+          opponent={opponent}
+          socket={socket}
+        />
       </section>
     </main>
   );
 };
 
-function Waiting({ roomState }: { roomState: RoomState }) {
-  return (
-    <section>
-      <h1>welcome to the room {roomState.room.player.username} </h1>
-      <h1>Waiting for the other player to connect</h1>
-      <h1>Use this number to connect: {roomState.room.roomNumber}</h1>
-    </section>
-  );
-}
 
-function Ready({
-  player,
-  opponent,
-  socket,
-  roomState,
-  setPlayerReady,
-  playerReady,
-  // gameStatus,
-}: {
-  player: User;
-  setPlayerReady: React.Dispatch<React.SetStateAction<boolean>>;
-  opponent: User;
-  socket: Socket;
-  roomState: RoomState;
-  playerReady: boolean;
-  // gameStatus: boolean;
-}) {
-  const handleClickReady = () => {
-    console.log("player ready");
-    setPlayerReady(true);
-    socket.emit("ready");
-  };
-
-  return (
-    <section>
-      <h1>Other player has connected</h1>
-      <h1>Your Opponent: {opponent.username}</h1>
-      <Chat
-        user={player}
-        opponent={opponent}
-        socket={socket}
-        room={roomState.room}
-      />
-      <button onClick={handleClickReady} disabled={playerReady}>
-        Ready
-      </button>
-    </section>
-  );
-}
 
 export default GameRoom;

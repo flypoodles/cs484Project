@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 
-import Board from "./Board";
-import { PlayerCard, OpponentCard} from "./PlayerCard"
+import Board from "../../components/Board";
+import { PlayerCard, OpponentCard} from "../../components/PlayerCard"
 import { Socket } from "socket.io-client";
-import { User } from "../type";
-import { fenToBoard, processDeadpiecesStr } from "../utils/utils";
+import { User } from "../../type";
+import { fenToBoard, processDeadpiecesStr } from "../../utils/utils";
 
 export default function BoardSection({
   board,
   setBoard,
+  setTurn,
   socket,
   player,
   playerReady,
@@ -19,6 +20,7 @@ export default function BoardSection({
 }: {
   board: string[][];
   setBoard: React.Dispatch<React.SetStateAction<string[][]>>;
+  setTurn: React.Dispatch<React.SetStateAction<number>>,
   socket: Socket;
   player: User;
   playerReady: boolean;
@@ -29,7 +31,6 @@ export default function BoardSection({
 }) {
   // const [board, setBoard] = useState<string[][]>([]);
   const [side, setSide] = useState<string>("");
-  const [turn, setTurn] = useState(0);
   const [yourTurn, setYourTurn] = useState(false);
   const [error, setError] = useState("");
   const [playerDeadPieces, setPlayerDeadPieces] = useState<string[]>([]); // NEWLY ADDED
@@ -122,7 +123,6 @@ export default function BoardSection({
 
   return (
     <section>
-      <div>Turn: {turn}</div>
       <OpponentCard photo="" username={opponent?.username} deadPieces={playerDeadPieces} ready={opponentReady} gameStatus={gameStatus} oppTurn={!yourTurn}/>
       <div style={{height: "10px"}}></div>
       <Board

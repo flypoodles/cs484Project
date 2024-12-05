@@ -1,10 +1,11 @@
-import { User, Message, RoomInfo } from "../type.ts";
+import { User, Message, RoomInfo } from "../../type.ts";
 import React, { ReactNode, useState } from "react";
 import { Socket } from "socket.io-client";
+import "./styles/Chat.css"
 
 interface MessageProp {
   user: User;
-  opponent: User;
+  opponent: User | null;
   socket: Socket;
   room: RoomInfo;
 }
@@ -42,10 +43,8 @@ const Chat: React.FC<MessageProp> = ({
   });
 
   return (
-    <>
-      <h1>Chat with {opponent.username}</h1>
-      <ol>{renderList()}</ol>
-
+    <section className="game-room-chat">
+      <h1>Chat with {opponent?.username}</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -54,9 +53,10 @@ const Chat: React.FC<MessageProp> = ({
           onChange={(e) => setCurmessage(e.target.value)}
           required
         />
-        <button type="submit">Sent</button>
+        <button disabled={!opponent} type="submit">Sent</button>
       </form>
-    </>
+      <ol>{renderList()}</ol>
+    </section>
   );
 };
 
