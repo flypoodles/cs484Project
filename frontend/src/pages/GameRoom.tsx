@@ -37,6 +37,9 @@ const GameRoom: React.FC<roomProp> = ({
   const [gameStatus, setGameStatus] = useState(false);
   const [board, setBoard] = useState<string[][]>([]);
   const [turn, setTurn] = useState(0)
+  const [error, setError] = useState("")
+  const [isCheck, setCheck] = useState(false); // NEWLY ADDED
+  const [yourTurn, setYourTurn] = useState(false);
 
   // waiting = true if there is no opponent, otherwise false
   const [waiting, setWaiting] = useState<boolean>(
@@ -96,12 +99,22 @@ const GameRoom: React.FC<roomProp> = ({
           opponentReady={opponentReady}
           gameStatus={gameStatus}
           setGameStatus={setGameStatus}
+          setError={setError}
+          setCheck={setCheck}
+          yourTurn={yourTurn}
+          setYourTurn={setYourTurn}
+          setPlayerReady={setPlayerReady}
+          setOpponentReady={setOpponentReady}
         />
       </section>
       <section id="rightPanel">
         <InfoSection 
           turn={turn}
+          yourTurn={yourTurn}
           waiting={waiting}
+          gameStatus={gameStatus}
+          error={error}
+          isCheck={isCheck}
           roomState={roomState}
           player={player}
           playerReady={playerReady}

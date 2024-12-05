@@ -23,8 +23,8 @@ const Chat: React.FC<MessageProp> = ({
   // render all the chat messages
   const renderList = () => {
     const components: ReactNode = messageLog.map((message, i) => (
-      <li key={i}>
-        {message.sender.username} : {message.message}
+      <li style={{marginBottom: "5px"}} key={i}>
+        <strong>{message.sender.username}</strong>: {message.message}
       </li>
     ));
     return components;
@@ -39,23 +39,24 @@ const Chat: React.FC<MessageProp> = ({
   };
 
   socket.on("chat message", (message: Message) => {
-    setMessageLog(messageLog.concat(message));
+    setMessageLog([message, ...messageLog]);
   });
 
   return (
     <section className="game-room-chat">
       <h1>Chat with {opponent?.username}</h1>
-      <form onSubmit={handleSubmit}>
+      <form className="chat-form" onSubmit={handleSubmit}>
         <input
+          disabled={!opponent}
           type="text"
           value={curMessage}
           placeholder="type message"
           onChange={(e) => setCurmessage(e.target.value)}
           required
         />
-        <button disabled={!opponent} type="submit">Sent</button>
+        <button disabled={!opponent} type="submit">Send</button>
       </form>
-      <ol>{renderList()}</ol>
+      <ul className="chat-content">{renderList()}</ul>
     </section>
   );
 };

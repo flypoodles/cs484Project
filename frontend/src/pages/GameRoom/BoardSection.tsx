@@ -17,6 +17,12 @@ export default function BoardSection({
   opponentReady,
   gameStatus,
   setGameStatus,
+  setError,
+  setCheck,
+  yourTurn,
+  setYourTurn,
+  setPlayerReady,
+  setOpponentReady
 }: {
   board: string[][];
   setBoard: React.Dispatch<React.SetStateAction<string[][]>>;
@@ -28,14 +34,17 @@ export default function BoardSection({
   opponentReady: boolean;
   gameStatus: boolean;
   setGameStatus: React.Dispatch<React.SetStateAction<boolean>>;
+  setError: React.Dispatch<React.SetStateAction<string>>;
+  setCheck: React.Dispatch<React.SetStateAction<boolean>>,
+  yourTurn: boolean,
+  setYourTurn: React.Dispatch<React.SetStateAction<boolean>>,
+  setPlayerReady: React.Dispatch<React.SetStateAction<boolean>>,
+  setOpponentReady: React.Dispatch<React.SetStateAction<boolean>>,
 }) {
   // const [board, setBoard] = useState<string[][]>([]);
   const [side, setSide] = useState<string>("");
-  const [yourTurn, setYourTurn] = useState(false);
-  const [error, setError] = useState("");
   const [playerDeadPieces, setPlayerDeadPieces] = useState<string[]>([]); // NEWLY ADDED
   const [oppDeadPieces, setOppDeadPieces] = useState<string[]>([])
-  const [isCheck, setCheck] = useState(false); // NEWLY ADDED
   useEffect(() => {
     if (!gameStatus) {
       socket.on(
@@ -52,6 +61,8 @@ export default function BoardSection({
           setTurn(turn);
           setSide(side);
           setYourTurn(yourTurn);
+          setCheck(false)
+          setError("")
           setGameStatus(true);
           // populate the board and start the game
           const startBoard = fenToBoard(boardString).board;
@@ -98,6 +109,9 @@ export default function BoardSection({
           const newBoard = fenToBoard(boardFenNew);
           setBoard(newBoard.board);
           alert(`winner : ${winner}`);
+          setGameStatus(false)
+          setPlayerReady(false);
+          setOpponentReady(false);
         }
       );
 
@@ -134,9 +148,6 @@ export default function BoardSection({
       />
       <div style={{height: "10px"}}></div>
       <PlayerCard photo="" username={player?.username} deadPieces={oppDeadPieces} ready={playerReady} gameStatus={gameStatus} yourTurn={yourTurn} />
-      {error !== "" && <div>{error}</div>}
-      {playerDeadPieces && <div>{playerDeadPieces.toString()}</div>}
-      {isCheck && <div>checked: {isCheck}</div>}
     </section>
   );
 }

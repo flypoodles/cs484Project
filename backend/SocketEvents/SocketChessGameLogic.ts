@@ -168,6 +168,7 @@ export const GameEvent = (
               gameState.board,
               gameState.deadPieces.join(" ")
             );
+            room.readyStatus = 0 // reset ready status
             return;
           }
         }

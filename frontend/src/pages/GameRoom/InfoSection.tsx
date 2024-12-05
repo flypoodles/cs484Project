@@ -6,9 +6,26 @@ import Chat from "./Chat";
 
 import "./styles/InfoSection.css"
 
-export default function InfoSection({turn, waiting, roomState, player, playerReady, setPlayerReady, opponent, socket} : {
+export default function InfoSection({
+  turn,
+  yourTurn,
+  waiting,
+  gameStatus,
+  error,
+  isCheck,
+  roomState,
+  player,
+  playerReady,
+  setPlayerReady,
+  opponent,
+  socket
+} : {
   turn: number,
+  yourTurn: boolean,
   waiting: boolean,
+  gameStatus: boolean,
+  error: string,
+  isCheck: boolean,
   roomState: RoomState,
   player: User;
   playerReady: boolean; 
@@ -41,8 +58,10 @@ export default function InfoSection({turn, waiting, roomState, player, playerRea
         ) : (
           <>
             <h1>Turn: {turn}</h1>
-            <h1>Other player has connected</h1>
+            {!gameStatus && <h1>Other player has connected</h1>}
             <h1>Your Opponent: {opponent?.username}</h1>
+            {(error !== "") && <h1 style={{color: "red"}}>Error: {error}</h1>}
+            {(isCheck && gameStatus) && <h1 style={{color: "red"}}>Checked!</h1>}
           </>
         )}
       </section>
