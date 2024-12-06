@@ -66,3 +66,7 @@
      “Checked” warning will appear in the game information section.
    - The game ends when a player captures the opponent's king.
    - Players can press "Ready" again to start a new game.
+5. **Login Session**
+   - If a player opens another tab with the same authentication, the website will create a new socket for that user.
+   - If a player signs out in one tab, they will also be signed out in other tabs because the same authentication is shared.
+   - This feature is allowed so users can play with each other using the same account.
