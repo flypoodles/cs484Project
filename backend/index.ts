@@ -105,12 +105,15 @@ io.on("connection", (socket) => {
     const user = users.get(socket.id) as User;
     console.log("a user disconnected :", user);
     
-    if (!user) return;
+    if (!user) {
+      users.delete(socket.id);
+      return;
+    }
 
     // make sure to room request after disconnect
     // this is a function from SocketRoomLogic
     // endRoomConnection(io, socket, users, rooms);
-    socket.disconnect();
+    // socket.disconnect();
     const theRoom = rooms.get(user.roomNumber);
     if (theRoom !== undefined) {
       // if the user disconnect when play with other player then notify that other player

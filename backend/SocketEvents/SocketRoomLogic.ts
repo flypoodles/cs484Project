@@ -56,7 +56,7 @@ export const roomEvent = (
     }
 
     const currentUser: User | undefined = users.get(socket.id);
-    if (currentUser == undefined) {
+    if (!currentUser) {
       socket.emit("Join Error", "unable to find the user");
       return;
     }
@@ -100,7 +100,7 @@ export const roomEvent = (
     // Add user to the room
     const roomNumber = availableRoom.roomNumber
     const currentUser: User | undefined = users.get(socket.id);
-    if (currentUser == undefined) {
+    if (!currentUser) {
       socket.emit("Join Error", "unable to find the user");
       return;
     }
