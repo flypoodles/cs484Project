@@ -188,7 +188,7 @@ function validateKing(
   }
 
   const area: number = getArea(initialPosition, destination);
-  console.log("area ", area);
+  //console.log("area ", area);
 
   if (area !== 0) {
     return { success: false, err: "king cannot move diagonally" };
@@ -216,7 +216,7 @@ function validateGuard(
     return { success: false, err: "not inside palace" };
   }
   const area: number = getArea(initialPosition, destination);
-  console.log("area ", area);
+  //console.log("area ", area);
   if (area != 1) {
     return { success: false, err: "guard can only move 1x1 diagonally " };
   }
@@ -230,9 +230,9 @@ function validateElephant(
   board: string[][],
   piece: PieceInfo
 ): Result {
-  console.log("checking Elephant");
+  //console.log("checking Elephant");
   const area: number = getArea(initialPosition, destination);
-  console.log("area ", area);
+  //console.log("area ", area);
 
   const xdist = destination[1] - initialPosition[1];
   const ydist = destination[0] - initialPosition[0];
@@ -265,9 +265,9 @@ function validateCannon(
   board: string[][],
   piece: PieceInfo
 ): Result {
-  console.log("checking cannon");
+  //console.log("checking cannon");
   const area: number = getArea(initialPosition, destination);
-  console.log("area ", area);
+  //console.log("area ", area);
   if (area !== 0) {
     return { success: false, err: "Cannon cannot move diagonly" };
   }
@@ -315,9 +315,9 @@ function validateHorse(
   board: string[][],
   piece: PieceInfo
 ): Result {
-  console.log("checking horse");
+  //("checking horse");
   const area: number = getArea(initialPosition, destination);
-  console.log("area ", area);
+  //console.log("area ", area);
   if (area !== 2) {
     return { success: false, err: "Invalid horse move" };
   }
@@ -346,9 +346,9 @@ function validateRook(
   board: string[][],
   piece: PieceInfo
 ): Result {
-  console.log("checking rook");
+  //console.log("checking rook");
   const area: number = getArea(initialPosition, destination);
-  console.log("area ", area);
+  //console.log("area ", area);
   if (area !== 0) {
     return { success: false, err: "Rook cannot move diagonly" };
   }
@@ -391,9 +391,9 @@ function validatePawn(
   board: string[][],
   piece: PieceInfo
 ): Result {
-  console.log("checking pawn");
+  //console.log("checking pawn");
   const area: number = getArea(initialPosition, destination);
-  console.log("area ", area);
+  //console.log("area ", area);
   if (area !== 0) {
     return { success: false, err: "Pawn cannot move diagonly" };
   }
