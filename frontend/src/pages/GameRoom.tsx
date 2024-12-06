@@ -75,12 +75,12 @@ const GameRoom: React.FC<roomProp> = ({
     );
 
     socket.on("opponent ready", () => {
-      console.log("opponent is ready");
+      // console.log("opponent is ready");
       setOpponentReady(true);
     });
 
     return () => {
-      console.log("remove eventlistener 'user join', 'opponent ready'");
+      // console.log("remove eventlistener 'user join', 'opponent ready'");
       socket.removeAllListeners("User Joined");
       socket.removeAllListeners("opponent ready");
     };

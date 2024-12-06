@@ -46,7 +46,7 @@ function App() {
 
   socket.on("connect_error", (err) => {
     if (err.message === "invalid username") {
-      console.log("error: " + err.message);
+      console.error(err);
     }
   });
 

@@ -74,7 +74,7 @@ const Welcome: FC<Props> = ({ socket }) => {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const { email, username, photo } = docSnap.data() as UserProfile;
-          console.log("username already exists in firestore:", username);
+          // console.log("username already exists in firestore:", username);
           setProfile({ email, username, photo });
           socket.auth = {
             email: email,
@@ -82,7 +82,7 @@ const Welcome: FC<Props> = ({ socket }) => {
             photo: user.photoURL || "",
           };
         } else {
-          console.log("username not in firestore. Adding to firestore");
+          // console.log("username not in firestore. Adding to firestore");
           await setDoc(doc(db, "Users", user.uid), {
             email: user.email,
             username: user.displayName,
