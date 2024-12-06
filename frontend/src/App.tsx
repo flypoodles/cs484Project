@@ -30,9 +30,9 @@ function App() {
     async function onDisconnect() {
       setRoom(null);
       setUser(null);
-
-      await logout();
-      navigate("/");
+      console.log("disconnect")
+      // await logout();
+      // navigate("/");
     }
 
     socket.on("onConnect", onConnect);
