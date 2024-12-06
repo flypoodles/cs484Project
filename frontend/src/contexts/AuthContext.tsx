@@ -50,7 +50,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    console.log(`\nAuthenticate use Effect`)
     // console.log(profile)
     // console.log(currentUser)
 
@@ -81,10 +80,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const { email, username, photo } = docSnap.data() as UserProfile;
-            console.log("username already exists in firestore:", username);
+            // console.log("username already exists in firestore:", username);
             setProfile({ email, username, photo });
           } else {
-            console.log("username not in firestore. Adding to firestore");
+            // console.log("username not in firestore. Adding to firestore");
             await setDoc(doc(db, "Users", user.uid), {
               email: user.email,
               username: user.displayName,
