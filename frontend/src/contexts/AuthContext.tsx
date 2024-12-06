@@ -46,6 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode}) {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       setCurrentUser(user)
       console.log(user)
+
       // if user session still exists but profile not then go to firestore and grab username
       try {
         if (user && !profile) {

@@ -40,6 +40,7 @@ const GameRoom: React.FC<roomProp> = ({
   const [error, setError] = useState("")
   const [isCheck, setCheck] = useState(false); // NEWLY ADDED
   const [yourTurn, setYourTurn] = useState(false);
+  const [winner, setWinner] = useState("")
 
   // waiting = true if there is no opponent, otherwise false
   const [waiting, setWaiting] = useState<boolean>(
@@ -66,6 +67,7 @@ const GameRoom: React.FC<roomProp> = ({
         };
         console.log("user join");
         roomState.setRoom(room);
+        setWinner("")
         setBoard([])
         setWaiting(false);
         setOpponent(room.opponent);
@@ -89,6 +91,7 @@ const GameRoom: React.FC<roomProp> = ({
       <NavBar socket={socket} />
       <section id="leftPanel">
         <BoardSection
+          setWinner={setWinner}
           setTurn={setTurn}
           board={board}
           setBoard={setBoard}
@@ -109,6 +112,7 @@ const GameRoom: React.FC<roomProp> = ({
       </section>
       <section id="rightPanel">
         <InfoSection 
+          winner={winner}
           turn={turn}
           yourTurn={yourTurn}
           waiting={waiting}

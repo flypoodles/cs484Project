@@ -44,7 +44,11 @@ const Chat: React.FC<MessageProp> = ({
 
   return (
     <section className="game-room-chat">
-      <h1>Chat with {opponent?.username}</h1>
+      {(opponent)? (
+        <h1>Chat with: {opponent?.username}</h1>
+      ) : (
+        <h1>Waiting opponent to join to chat</h1>
+      )}
       <form className="chat-form" onSubmit={handleSubmit}>
         <input
           disabled={!opponent}

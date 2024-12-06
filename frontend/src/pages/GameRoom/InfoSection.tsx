@@ -7,6 +7,7 @@ import Chat from "./Chat";
 import "./styles/InfoSection.css"
 
 export default function InfoSection({
+  winner,
   turn,
   yourTurn,
   waiting,
@@ -20,6 +21,7 @@ export default function InfoSection({
   opponent,
   socket
 } : {
+  winner: string,
   turn: number,
   yourTurn: boolean,
   waiting: boolean,
@@ -62,6 +64,8 @@ export default function InfoSection({
             <h1>Your Opponent: {opponent?.username}</h1>
             {(error !== "") && <h1 style={{color: "red"}}>Error: {error}</h1>}
             {(isCheck && gameStatus) && <h1 style={{color: "red"}}>Checked!</h1>}
+            {(winner !== "") && <h1 style={{color: "green"}}>Winner: {winner}</h1>}
+            {(!gameStatus) && <h1>Click Ready to start the game!</h1>}
           </>
         )}
       </section>

@@ -128,6 +128,11 @@ export const roomEvent = (
     console.log(`${user.username} leave room`);
 
     const theRoom = rooms.get(user.roomNumber);
+    if (!theRoom) {
+      console.log("leave room: the user is not in any room")
+      return
+    }
+
     // if user is alone in room then delete room
     if (theRoom?.player.length == 1) {
       if (user.roomNumber != "") {

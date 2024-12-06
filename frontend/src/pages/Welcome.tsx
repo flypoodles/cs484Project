@@ -9,6 +9,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { UserProfile } from "../type";
+import CircularProgress from "@mui/material/CircularProgress";
 // I am wrapping all state variables in an interface, so it is clear to see which function belongs to which state.
 // state username state.
 
@@ -133,7 +134,11 @@ function EnterInfo({
   return (
     <div id="Welcome">
       <h1>Welcome to Chess game!</h1>
-      {loadingAuthenticate && <div>loging in</div>}
+      {loadingAuthenticate && (
+        <CircularProgress 
+          size="40px"
+          thickness={5}
+        />)}
       {error && <div className="login-error">Error: {error}</div>}
       <form className="loginForm" onSubmit={handleConnection}>
         <h2 style={{marginBottom: "10px", marginTop: "0px"}}>Login</h2>

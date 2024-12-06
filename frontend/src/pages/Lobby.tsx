@@ -128,7 +128,6 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
             <button disabled={user === null} onClick={() => handleCreate()}>Create</button>
             <button disabled={user === null} onClick={() => setJoinScreen(true)}>Join a room</button>
             <button disabled={user === null} onClick={handleJoinRandomRoom}>Join random</button>
-            <button disabled={user === null} >Spectate a game</button>
           </div>
         )}
       </div>

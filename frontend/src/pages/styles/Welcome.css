@@ -16,6 +16,7 @@
   border: 1px solid black;
   width: 400px;
   padding: 20px;
+  margin-top: 10px;
 }
 .loginForm > label {
   margin-top: 15px;

@@ -8,6 +8,7 @@ import { fenToBoard, processDeadpiecesStr } from "../../utils/utils";
 import { AuthContextType, useAuth } from "../../contexts/AuthContext";
 
 export default function BoardSection({
+  setWinner,
   board,
   setBoard,
   setTurn,
@@ -25,6 +26,7 @@ export default function BoardSection({
   setPlayerReady,
   setOpponentReady
 }: {
+  setWinner: React.Dispatch<React.SetStateAction<string>>,
   board: string[][];
   setBoard: React.Dispatch<React.SetStateAction<string[][]>>;
   setTurn: React.Dispatch<React.SetStateAction<number>>,
@@ -62,9 +64,12 @@ export default function BoardSection({
           console.log(
             `Start the game! yourTurn=${yourTurn} turn=${turn} side=${side} boardString=${boardString}`
           );
+          setWinner("")
           setTurn(turn);
           setSide(side);
           setYourTurn(yourTurn);
+          setPlayerDeadPieces([])
+          setOppDeadPieces([])
           setCheck(false)
           setError("")
           setGameStatus(true);
@@ -112,10 +117,12 @@ export default function BoardSection({
           setOppDeadPieces(deadPiecesTuple.opponentDeadPieces)
           const newBoard = fenToBoard(boardFenNew);
           setBoard(newBoard.board);
-          alert(`winner : ${winner}`);
+          const winnerName = (winner === side) ? player.username : opponent?.username as string
+          setWinner(winnerName)
           setGameStatus(false)
           setPlayerReady(false);
           setOpponentReady(false);
+          alert(`winner : ${winner}: ${winnerName}`);
         }
       );
 
