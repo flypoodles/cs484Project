@@ -1,5 +1,6 @@
 import { Socket, Server } from "socket.io";
 import { User, RoomInfo, GameState, MoveInfo } from "../type.ts";
+import { updateSpeculator } from "./SocketRoomLogic.ts";
 import {
   getTheDeadPiece,
   invertFen,
@@ -71,6 +72,7 @@ export const GameEvent = (
       "black",
       invertFen(newGame.board)
     );
+    updateSpeculator(io, room.roomNumber, rooms);
   });
 
   socket.onAny((eventName) => console.log(eventName));
@@ -168,7 +170,8 @@ export const GameEvent = (
               gameState.board,
               gameState.deadPieces.join(" ")
             );
-            room.readyStatus = 0 // reset ready status
+            updateSpeculator(io, room.roomNumber, rooms, true, winner);
+            room.readyStatus = 0; // reset ready status
             return;
           }
         }
@@ -195,6 +198,7 @@ export const GameEvent = (
           gameState.deadPieces.join(" "),
           check
         );
+        updateSpeculator(io, room.roomNumber, rooms);
       } catch (error) {
         console.log(error);
       }

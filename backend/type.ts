@@ -7,9 +7,11 @@ export interface User {
 
 export interface RoomInfo {
   roomNumber: string;
+  speculateRoomNumber: string;
   player: User[];
   gameState: GameState | null;
   readyStatus: number;
+  speculator: User[];
 }
 
 export interface Message {
