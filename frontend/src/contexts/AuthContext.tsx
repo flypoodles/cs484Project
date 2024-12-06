@@ -50,7 +50,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    console.log("\nAuthenticate use Effect:")
+    console.log(`\nAuthenticate use Effect`)
+    // console.log(profile)
+    // console.log(currentUser)
 
     if (profile && currentUser && !socket.connected) {
       socket.auth = {
@@ -67,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setCurrentUser(user);
       if (!user) {
         setProfile(null)
-        return
+        // return
       }
 
       // if user session still exists but profile not then go to firestore and grab username
@@ -95,11 +97,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             });
           }
         }
-
-        setLoading(false);
       } catch (err) {
         console.error(err);
       }
+      setLoading(false);
+
     });
 
     return unsubscribe;
