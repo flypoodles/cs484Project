@@ -1,12 +1,14 @@
-# cs484Project
+# CS 484 Project - Chinese Chess
 
-# To run backend
+### Creator: Manh Phan, Lei Chen
+
+### To run backend
 
     npm install
     npm install -g tsx
     npm run start
 
-# To run frontend
+### To run frontend
 
     npm install
     npm run dev

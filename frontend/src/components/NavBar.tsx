@@ -1,34 +1,31 @@
 // import { useNavigate } from "react-router-dom";
-import "./styles/NavBar.css"
+import "./styles/NavBar.css";
 import { useState } from "react";
 import { Socket } from "socket.io-client";
 import { AuthContextType, useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-export default function NavBar({socket}: {
-  socket: Socket
-}) {
-
-  const navigate = useNavigate()
-  const [loading, setLoading] = useState(false)
+export default function NavBar({ socket }: { socket: Socket }) {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   // const navigate = useNavigate()
-  const { logout, profile } = useAuth() as AuthContextType
+  const { logout, profile } = useAuth() as AuthContextType;
 
   const handleClickLogo = () => {
     socket.emit("leave room");
-    navigate("/Lobby")
-  }
+    navigate("/Lobby");
+  };
 
   const handleSignout = async () => {
     try {
-      setLoading(true)
-      await logout()
-      socket.disconnect()
+      setLoading(true);
+      await logout();
+      socket.emit("sign-out");
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   return (
     <nav className="navbar">
@@ -36,9 +33,7 @@ export default function NavBar({socket}: {
         Chinese Chess
       </div>
       <div className="navbar-right">
-        <div className="navbar-profile">
-          {profile?.username || ""}
-        </div>
+        <div className="navbar-profile">{profile?.username || ""}</div>
         <button
           disabled={loading}
           onClick={handleSignout}
@@ -48,5 +43,5 @@ export default function NavBar({socket}: {
         </button>
       </div>
     </nav>
-  )
+  );
 }
