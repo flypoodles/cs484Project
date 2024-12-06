@@ -2,7 +2,7 @@ import React, { FC, useState } from "react";
 import { Socket } from "socket.io-client";
 import { auth, db, provider } from "../firebase/firebase";
 import "./styles/Welcome.css";
-import GoogleIcon from "/src/icons/GoogleIcon";
+import GoogleIcon from "../icons/GoogleIcon";
 import { signInWithPopup, UserCredential } from "firebase/auth";
 // import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -99,7 +99,6 @@ const Welcome: FC<Props> = ({ socket }) => {
             photo: user.photoURL || "",
           };
         }
-        alert("connecting");
         socket.connect();
         setLoading(true);
       })

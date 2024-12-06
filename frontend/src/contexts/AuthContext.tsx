@@ -12,6 +12,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 // import { socket } from "../socket/socket";
 
 import CircularProgress from "@mui/material/CircularProgress";
+import { socket } from "../socket/socket";
 
 export interface AuthContextType {
   register: (email: string, password: string) => Promise<UserCredential>;
@@ -49,9 +50,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    console.log("\nAuthenticate use Effect:")
+
+    if (profile && !socket.connected) {
+      socket.auth = {
+        email: profile.email,
+        username: profile.username,
+        photo: profile.photo,
+      };
+      console.log("already authenticated! now connect socket ...")
+      socket.connect();
+    }
+
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      console.log(user?.uid)
       setCurrentUser(user);
-      console.log(user);
 
       // if user session still exists but profile not then go to firestore and grab username
       try {
@@ -64,14 +77,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const { email, username, photo } = docSnap.data() as UserProfile;
             console.log("username already exists in firestore:", username);
             setProfile({ email, username, photo });
-            // if (user && !socket.connected) {
-            //   socket.auth = {
-            //     email: email,
-            //     username: username,
-            //     photo: photo,
-            //   };
-            //   socket.connect();
-            // }
           } else {
             console.log("username not in firestore. Adding to firestore");
             await setDoc(doc(db, "Users", user.uid), {
@@ -84,15 +89,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               username: user.displayName || "",
               photo: "",
             });
-            // if (user && !socket.connected) {
-            //   socket.auth = {
-            //     email: user.email,
-            //     username: user.displayName || "",
-            //     photo: "",
-            //   };
-            //   socket.connect();
-            // }
           }
+          console.log("should be authenticated!")
         }
 
         setLoading(false);

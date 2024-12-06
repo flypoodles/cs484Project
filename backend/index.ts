@@ -69,36 +69,36 @@ io.on("connection", (socket) => {
   roomEvent(io, socket, users, rooms);
   GameEvent(io, socket, users, rooms);
   socket.on("disconnect", () => {
-    const theDisconnectEmail: string = users.get(socket.id)?.email as string;
-    for (const userId of users.keys()) {
-      const currentUser = users.get(userId) as User;
-      if (currentUser?.email === theDisconnectEmail) {
-        console.log("a user disconnected :", currentUser);
-        const theRoom = rooms.get(currentUser.roomNumber);
-        if (theRoom !== undefined) {
-          // if the user disconnect when play with other player then notify that other player
-          if (theRoom?.player.length == 2) {
-            if (currentUser.roomNumber !== "") {
-              console.log("user disconnect, notify his opponent");
-              theRoom.readyStatus = 0;
-              theRoom.player = theRoom.player.filter(
-                (usr) => usr.id != currentUser.id
-              );
-              const otherSocket = theRoom.player[0].id;
-              console.log(otherSocket);
-              io.to(otherSocket).emit("opponent leave");
-            }
-          } else {
-            if (currentUser.roomNumber !== "") {
-              console.log(`user leaves: ${theRoom?.roomNumber}. Delete room`);
-              rooms.delete(currentUser.roomNumber);
-            }
-          }
+    console.log("a user disconnected :", users.get(socket.id));
+    // make sure to room request after disconnect
+    // this is a function from SocketRoomLogic
+    // endRoomConnection(io, socket, users, rooms);
+    socket.disconnect();
+    const user = users.get(socket.id) as User;
+    const theRoom = rooms.get(user.roomNumber);
+    if (theRoom !== undefined) {
+
+      // if the user disconnect when play with other player then notify that other player
+      if (theRoom?.player.length == 2) {
+        if (user.roomNumber !== "") {
+          console.log("user disconnect, notify his opponent")
+          theRoom.readyStatus = 0;
+          theRoom.player = theRoom.player.filter((usr) => usr.id != user.id);
+          const otherSocket = theRoom.player[0].id;
+          console.log(otherSocket);
+          io.to(otherSocket).emit("opponent leave");
         }
       }
-      // delete user
-      users.delete(currentUser?.id);
-    }
-    io.in(theDisconnectEmail).disconnectSockets();
+      else {
+        if (user.roomNumber !== "") {
+          console.log(`user leaves: ${theRoom?.roomNumber}. Delete room`)
+          rooms.delete(user.roomNumber)
+        }
+      }
+    } 
+
+
+    // delete user
+    users.delete(socket.id);
   });
 });
