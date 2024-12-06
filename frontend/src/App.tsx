@@ -6,8 +6,8 @@ import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Lobby from "./pages/Lobby.tsx";
 import GameRoom from "./pages/GameRoom.tsx";
 import Welcome from "./pages/Welcome.tsx";
-import { User as AuthUser } from "firebase/auth"
-import { useAuth } from "./contexts/AuthContext.tsx";
+import { User as AuthUser } from "firebase/auth";
+import { useAuth, AuthContextType } from "./contexts/AuthContext.tsx";
 import Register from "./pages/Register.tsx";
 
 function App() {
@@ -16,16 +16,20 @@ function App() {
   const [room, setRoom] = useState<RoomInfo | null>(null);
   const navigate = useNavigate();
 
-  const { currentUser, profile } = useAuth() as { 
-    currentUser: AuthUser | null
-    profile: UserProfile
-  }
+  const { currentUser, profile, logout } = useAuth() as AuthContextType;
 
   useEffect(() => {
-
+    //alert(`socket.connected: ${socket.connected} currentuser : ${currentUser}`);
+    console.log(
+      `socket.connected: ${socket.connected} currentuser : ${currentUser}`
+    );
     if (!socket.connected && currentUser) {
-      socket.auth = { username: profile.username, photo: currentUser.photoURL || "" };
-      socket.connect()
+      socket.auth = {
+        email: profile.email,
+        username: profile.username,
+        photo: currentUser.photoURL || "",
+      };
+      socket.connect();
     }
 
     // socket will call this function if connected
@@ -35,9 +39,11 @@ function App() {
     }
 
     // socket will call this function if disconnected
-    function onDisconnect() {
+    async function onDisconnect() {
       setRoom(null);
       setUser(null);
+
+      await logout();
       navigate("/");
     }
 
@@ -62,27 +68,28 @@ function App() {
         <Route
           path="/"
           element={
-            (!currentUser)? // if user is not authenticated then direct them to Welcome page to login, otherwise redirect them to lobby
-              <Welcome socket={socket}/> 
-            : 
-              <Navigate to="/Lobby" />}
+            !currentUser ? ( // if user is not authenticated then direct them to Welcome page to login, otherwise redirect them to lobby
+              <Welcome socket={socket} />
+            ) : (
+              <Navigate to="/Lobby" />
+            )
+          }
         />
         <Route
           path="/Lobby"
           element={
-            (currentUser)? // only allow user to enter this path if user is authenticated
-              <Lobby socket={socket} setRoom={setRoom} user={user} /> 
-            : 
-              <Navigate to="/" />}
+            currentUser ? ( // only allow user to enter this path if user is authenticated
+              <Lobby socket={socket} setRoom={setRoom} user={user} />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
         />
-        <Route
-          path="/Register"
-          element={<Register socket={socket} />}
-        />
+        <Route path="/Register" element={<Register socket={socket} />} />
         <Route
           path="/GameRoom"
           element={
-            (currentUser && room)? // only allow user to enter this path if user is authenticated and user created a room
+            currentUser && room ? ( // only allow user to enter this path if user is authenticated and user created a room
               <GameRoom
                 socket={socket}
                 roomState={
@@ -93,8 +100,9 @@ function App() {
                 }
                 userState={{ user: user, setUser }}
               />
-            : 
+            ) : (
               <Navigate to="/" />
+            )
           }
         />
       </Routes>
