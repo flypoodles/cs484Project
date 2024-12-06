@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import { User, RoomInfo, UserProfile } from "./type.ts";
+import { User, RoomInfo } from "./type.ts";
 import { socket } from "./socket/socket.ts";
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Lobby from "./pages/Lobby.tsx";
 import GameRoom from "./pages/GameRoom.tsx";
 import Welcome from "./pages/Welcome.tsx";
-import { User as AuthUser } from "firebase/auth";
+// import { User as AuthUser } from "firebase/auth";
 import { useAuth, AuthContextType } from "./contexts/AuthContext.tsx";
 import Register from "./pages/Register.tsx";
 
@@ -16,21 +16,9 @@ function App() {
   const [room, setRoom] = useState<RoomInfo | null>(null);
   const navigate = useNavigate();
 
-  const { currentUser, profile, logout } = useAuth() as AuthContextType;
+  const { currentUser, logout } = useAuth() as AuthContextType;
 
   useEffect(() => {
-    //alert(`socket.connected: ${socket.connected} currentuser : ${currentUser}`);
-    console.log(
-      `socket.connected: ${socket.connected} currentuser : ${currentUser}`
-    );
-    if (!socket.connected && currentUser) {
-      socket.auth = {
-        email: profile.email,
-        username: profile.username,
-        photo: currentUser.photoURL || "",
-      };
-      socket.connect();
-    }
 
     // socket will call this function if connected
     function onConnect(user: User) {

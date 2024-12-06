@@ -37,7 +37,6 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
         setRoom(room);
 
         // redirect to gameroom
-        console.log("navagating");
         navigate("/GameRoom");
       }
     );

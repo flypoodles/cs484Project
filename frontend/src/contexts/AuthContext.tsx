@@ -52,11 +52,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     console.log("\nAuthenticate use Effect:")
 
-    if (profile && !socket.connected) {
+    if (profile && currentUser && !socket.connected) {
       socket.auth = {
         email: profile.email,
         username: profile.username,
-        photo: profile.photo,
+        photo: currentUser.photoURL || profile.photo,
       };
       console.log("already authenticated! now connect socket ...")
       socket.connect();
@@ -65,6 +65,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       console.log(user?.uid)
       setCurrentUser(user);
+      if (!user) {
+        setProfile(null)
+        return
+      }
 
       // if user session still exists but profile not then go to firestore and grab username
       try {
@@ -90,7 +94,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               photo: "",
             });
           }
-          console.log("should be authenticated!")
         }
 
         setLoading(false);
@@ -100,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return unsubscribe;
-  }, [profile]);
+  }, [profile, currentUser]);
 
   const value = {
     register,
