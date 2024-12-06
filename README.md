@@ -4,6 +4,8 @@
 
 ---
 
+### Prequisite: To build our project, you need firestore api keys.
+
 ### To run backend
 
 ```
