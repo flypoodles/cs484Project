@@ -197,7 +197,7 @@ function validateKing(
   const xdist = destination[1] - initialPosition[1];
   const ydist = destination[0] - initialPosition[0];
 
-  if (xdist > 1 || ydist > 1) {
+  if (Math.abs(xdist) > 1 || Math.abs(ydist) > 1) {
     return { success: false, err: "king can only move one step at a time" };
   }
   return { success: true, err: "" };
