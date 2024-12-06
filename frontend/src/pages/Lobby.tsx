@@ -1,9 +1,9 @@
 import { User, RoomInfo } from "../type.ts";
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 
-import "./styles/Lobby.css"
+import "./styles/Lobby.css";
 import NavBar from "../components/NavBar.tsx";
 
 interface LobbyProp {
@@ -72,7 +72,7 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
   };
 
   const handleJoinRandomRoom = () => {
-    socket.emit("JoinAnyRoomRequest")
+    socket.emit("JoinAnyRoomRequest");
 
     // if the user tried to join a room, the user socket will receive this.
     socket.on(
@@ -94,7 +94,7 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
       setJoinError(true);
       setError(err);
     });
-  }
+  };
 
   return (
     <section id="lobby">
@@ -107,7 +107,7 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
           <h1>Welcome {user.username}!</h1>
         )}
 
-        {joinError && <h1 style={{color: "red"}}> Join error: {getError}</h1>}
+        {joinError && <h1 style={{ color: "red" }}> Join error: {getError}</h1>}
         {joinScreen ? (
           <>
             <form className="form-joinRoom" onSubmit={handleJoin}>
@@ -119,16 +119,27 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
                 required
               />
 
-              <button type="button" onClick={() => setJoinScreen(false)}>Back</button>
+              <button type="button" onClick={() => setJoinScreen(false)}>
+                Back
+              </button>
               <button type="submit">Join</button>
             </form>
           </>
         ) : (
           <div className="lobby-options">
-            <button disabled={user === null} onClick={() => handleCreate()}>Create</button>
-            <button disabled={user === null} onClick={() => setJoinScreen(true)}>Join a room</button>
-            <button disabled={user === null} onClick={handleJoinRandomRoom}>Join random</button>
-            <button disabled={user === null} >Spectate a game</button>
+            <button disabled={user === null} onClick={() => handleCreate()}>
+              Create
+            </button>
+            <button
+              disabled={user === null}
+              onClick={() => setJoinScreen(true)}
+            >
+              Join a room
+            </button>
+            <button disabled={user === null} onClick={handleJoinRandomRoom}>
+              Join random
+            </button>
+            {/* <button disabled={user === null} >Spectate a game</button> */}
           </div>
         )}
       </div>

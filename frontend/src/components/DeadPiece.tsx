@@ -1,15 +1,12 @@
-import "./styles/Deadpiece.css"
-
-export default function DeadPiece({piece} : {
-  piece: string
-}) {
+import "./styles/DeadPiece.css";
+export default function DeadPiece({ piece }: { piece: string }) {
   return (
-    <div 
+    <div
       style={{
         width: "20px",
         height: "20px",
       }}
       className={`p-${piece}`}
     ></div>
-  )
+  );
 }

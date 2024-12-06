@@ -3,6 +3,7 @@ export interface User {
   username: string;
   photo: string; //url
   roomNumber: string;
+  email: string;
 }
 
 export interface RoomInfo {
