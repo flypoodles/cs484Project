@@ -104,9 +104,9 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     const user = users.get(socket.id) as User;
     console.log("a user disconnected :", user);
-    
+
     if (!user) {
-      users.delete(socket.id);
+      // users.delete(socket.id);
       return;
     }
 

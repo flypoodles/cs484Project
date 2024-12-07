@@ -50,13 +50,14 @@ export const roomEvent = (
       return;
     }
 
-    if (theRoom.player[0].id == socket.id) { // prevent two sockets that have similar id to join the same room
-      socket.emit("Join Error", "You are currently in that room!")
-      return
+    if (theRoom.player[0].id == socket.id) {
+      // prevent two sockets that have similar id to join the same room
+      socket.emit("Join Error", "You are currently in that room!");
+      return;
     }
 
     const currentUser: User | undefined = users.get(socket.id);
-    if (!currentUser) {
+    if (currentUser === undefined) {
       socket.emit("Join Error", "unable to find the user");
       return;
     }
@@ -80,27 +81,28 @@ export const roomEvent = (
 
   socket.on("JoinAnyRoomRequest", () => {
     // get the first room that is available
-    let availableRoom: RoomInfo | null | undefined = null
+    let availableRoom: RoomInfo | null | undefined = null;
     for (const roomId of rooms.keys()) {
-      const currRoom = rooms.get(roomId)
+      const currRoom = rooms.get(roomId);
       if (currRoom?.player.length === 1) {
-        if (currRoom.player[0].id !== socket.id) { // not allow the socket to join the room that the socket is already in
-          availableRoom = currRoom
-          break
+        if (currRoom.player[0].id !== socket.id) {
+          // not allow the socket to join the room that the socket is already in
+          availableRoom = currRoom;
+          break;
         }
       }
     }
     if (!availableRoom) {
       // if there is no available room then send join room failed
-      console.log("There is no room to join")
-      socket.emit("Join Error", "There is no room to join")
-      return
+      console.log("There is no room to join");
+      socket.emit("Join Error", "There is no room to join");
+      return;
     }
 
     // Add user to the room
-    const roomNumber = availableRoom.roomNumber
+    const roomNumber = availableRoom.roomNumber;
     const currentUser: User | undefined = users.get(socket.id);
-    if (!currentUser) {
+    if (currentUser === undefined) {
       socket.emit("Join Error", "unable to find the user");
       return;
     }
@@ -117,10 +119,20 @@ export const roomEvent = (
 
     socket
       .to(roomNumber)
-      .emit("User Joined", availableRoom.player[1], availableRoom.player[0], roomNumber);
+      .emit(
+        "User Joined",
+        availableRoom.player[1],
+        availableRoom.player[0],
+        roomNumber
+      );
     // send the newRoom back to the client socket
-    socket.emit("Joined", availableRoom.player[0], availableRoom.player[1], roomNumber);
-  })
+    socket.emit(
+      "Joined",
+      availableRoom.player[0],
+      availableRoom.player[1],
+      roomNumber
+    );
+  });
 
   // handle request to leave the room.
   socket.on("leave room", () => {
@@ -129,23 +141,24 @@ export const roomEvent = (
 
     const theRoom = rooms.get(user.roomNumber);
     if (!theRoom) {
-      console.log("leave room: the user is not in any room")
-      return
+      console.log("leave room: the user is not in any room");
+      return;
     }
 
     // if user is alone in room then delete room
+    socket.leave(user.roomNumber);
     if (theRoom?.player.length == 1) {
       if (user.roomNumber != "") {
         console.log("leave room: user alone in room");
         rooms.delete(user.roomNumber); // delete the room
-        user.roomNumber = ""
+        user.roomNumber = "";
       }
     }
     // if room has two players then send gameStatus "end" to the other user
     if (theRoom?.player.length == 2) {
       if (user.roomNumber != "") {
         console.log("leave room: 2 players in room");
-        user.roomNumber = ""
+        user.roomNumber = "";
         theRoom.readyStatus = 0;
         theRoom.player = theRoom.player.filter((usr) => usr.id != user.id);
         const otherSocket = theRoom.player[0].id;
