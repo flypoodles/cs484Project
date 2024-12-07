@@ -161,11 +161,11 @@ function EnterInfo({
       {error && <div className="login-error">Error: {error}</div>}
       <form className="loginForm" onSubmit={handleConnection}>
         <h2 style={{ marginBottom: "10px", marginTop: "0px" }}>Login</h2>
-        <label>Username / Gmail</label>
+        <label>Email</label>
         <input
           type="text"
           value={email}
-          placeholder="Enter username"
+          placeholder="Enter email"
           onChange={(e) => setEmail(e.target.value)}
           required
         />
