@@ -96,6 +96,7 @@ export const roomEvent = (
       socket.emit("Join Error", "There is no room to join")
       return
     }
+    console.log(availableRoom)
 
     // Add user to the room
     const roomNumber = availableRoom.roomNumber
