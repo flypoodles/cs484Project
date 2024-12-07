@@ -23,7 +23,7 @@ export const roomEvent = (
       return;
     }
     currentUser.roomNumber = roomNumber;
-    users.set(socket.id, currentUser);
+    //users.set(socket.id, currentUser);
 
     const newRoom: RoomInfo = {
       roomNumber: roomNumber,
@@ -98,7 +98,7 @@ export const roomEvent = (
       socket.emit("Join Error", "There is no room to join");
       return;
     }
-    console.log(availableRoom)
+    console.log(availableRoom);
 
     // Add user to the room
     const roomNumber = availableRoom.roomNumber;
@@ -137,6 +137,7 @@ export const roomEvent = (
 
   // handle request to leave the room.
   socket.on("leave room", () => {
+    console.log("leave room : id ", socket.id);
     const user = users.get(socket.id) as User;
     console.log(`${user.username} leave room`);
 

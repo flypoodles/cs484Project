@@ -57,6 +57,8 @@ io.on("connection", (socket) => {
     roomNumber: "",
   };
   users.set(socket.id, newUser);
+  console.log("socket.id added to users: ", socket.id);
+  console.log("added : ", users.has(socket.id));
   socket.emit("onConnect", newUser);
   socket.emit("message", "you have connected to the server!");
   socket.join(newUser.email);
@@ -80,14 +82,20 @@ io.on("connection", (socket) => {
           // if the user disconnect when play with other player then notify that other player
           if (theRoom?.player.length == 2) {
             if (currentUser.roomNumber !== "") {
-              console.log("user disconnect, notify his opponent");
+              console.log("user disconnect, notify his opponent in sign out");
+
               theRoom.readyStatus = 0;
               theRoom.player = theRoom.player.filter(
                 (usr) => usr.id != currentUser.id
               );
-              const otherSocket = theRoom.player[0].id;
-              console.log(otherSocket);
-              io.to(otherSocket).emit("opponent leave");
+              theRoom.player.forEach((usr) => console.log("player: ", usr.id));
+              const otherSocket = theRoom.player[0];
+              console.log("otherSOcket: ", otherSocket);
+              console.log(
+                "other socket username: ",
+                users.get(otherSocket.id)?.username
+              );
+              io.to(otherSocket.id).emit("opponent leave");
             }
           } else {
             if (currentUser.roomNumber !== "") {
@@ -96,19 +104,20 @@ io.on("connection", (socket) => {
             }
           }
         }
+        console.log("deleted id signout : ", currentUser.id);
+        users.delete(currentUser?.id);
       }
-      users.delete(currentUser?.id);
     }
     io.in(theDisconnectEmail).disconnectSockets();
   });
   socket.on("disconnect", () => {
     const user = users.get(socket.id) as User;
-    console.log("a user disconnected :", user);
 
     if (!user) {
       // users.delete(socket.id);
       return;
     }
+    console.log("a user disconnected :", user);
 
     // make sure to room request after disconnect
     // this is a function from SocketRoomLogic
@@ -119,7 +128,7 @@ io.on("connection", (socket) => {
       // if the user disconnect when play with other player then notify that other player
       if (theRoom?.player.length == 2) {
         if (user.roomNumber !== "") {
-          console.log("user disconnect, notify his opponent");
+          console.log("user disconnect, notify his opponent in disconnect");
           theRoom.readyStatus = 0;
           theRoom.player = theRoom.player.filter((usr) => usr.id != user.id);
           const otherSocket = theRoom.player[0].id;
@@ -135,6 +144,7 @@ io.on("connection", (socket) => {
     }
 
     // delete user
+    console.log("deleted id disconnect: ", socket.id);
     users.delete(socket.id);
   });
 });
