@@ -2,6 +2,8 @@
 
 ### Creator: Manh Phan, Lei Chen
 
+### Deploy link: [https://cs484finalproject.netlify.app/](https://cs484finalproject.netlify.app/)
+
 ---
 
 ### Prequisite: To build our project, you need firestore api keys.
