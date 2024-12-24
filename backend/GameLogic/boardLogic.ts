@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { RoomInfo, User, MoveInfo } from "./type";
+import { RoomInfo, User, MoveInfo } from "../type";
 
 export const invertFen: (str: string) => string = (fen: string) => {
   const newFen = fen
@@ -10,27 +10,6 @@ export const invertFen: (str: string) => string = (fen: string) => {
     .reverse()
     .join("/");
   return newFen;
-};
-
-export const retrieveInformation = (
-  users: Map<string, User>,
-  rooms: Map<String, RoomInfo>,
-  socket: Socket
-) => {
-  const user = users.get(socket.id);
-  if (user == undefined) {
-    socket.emit("error", "cannot find user when ready");
-    return { user: null, room: null };
-  }
-
-  const room = rooms.get(user.roomNumber);
-
-  if (room == undefined) {
-    socket.emit("error", "room does not exit for the user");
-    return { user: null, room: null };
-  }
-
-  return { user: user, room: room };
 };
 
 export function getTheDeadPiece(moveInfo: MoveInfo): string {

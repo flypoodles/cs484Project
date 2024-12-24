@@ -32,3 +32,8 @@ export interface MoveInfo {
   destination: number[];
   board: string;
 }
+
+export interface Status {
+  success: boolean;
+  err: string;
+}

@@ -7,6 +7,8 @@ import {
   roomEvent,
 } from "./SocketEvents/SocketRoomLogic.ts";
 import { GameEvent } from "./SocketEvents/SocketChessGameLogic.ts";
+import { ChatEvent } from "./SocketEvents/ChatRoomEvent.ts";
+import { UserEvent } from "./SocketEvents/UserEvent.ts";
 const app = express();
 const server = createServer(app);
 
@@ -39,7 +41,7 @@ io.use((socket, next) => {
   next();
 });
 app.get("/", (req, res) => {
-  res.send("<h1>Hello world</h1>");
+  res.send("<h1>If you see this, then the server is working</h1>");
 });
 
 server.listen(3000, () => {
@@ -64,87 +66,8 @@ io.on("connection", (socket) => {
   socket.join(newUser.email);
 
   // this is used for private chat between two sockets inside the room
-  socket.on("chat message", (roomNumber: string, msg: Message) => {
-    io.to(roomNumber).emit("chat message", msg);
-  });
-
+  ChatEvent(io, socket, users, rooms);
   roomEvent(io, socket, users, rooms);
   GameEvent(io, socket, users, rooms);
-
-  socket.on("sign-out", () => {
-    const theDisconnectEmail: string = users.get(socket.id)?.email as string;
-    for (const userId of users.keys()) {
-      const currentUser = users.get(userId) as User;
-      if (currentUser?.email === theDisconnectEmail) {
-        console.log("a user disconnected :", currentUser);
-        const theRoom = rooms.get(currentUser.roomNumber);
-        if (theRoom !== undefined) {
-          // if the user disconnect when play with other player then notify that other player
-          if (theRoom?.player.length == 2) {
-            if (currentUser.roomNumber !== "") {
-              console.log("user disconnect, notify his opponent in sign out");
-
-              theRoom.readyStatus = 0;
-              theRoom.player = theRoom.player.filter(
-                (usr) => usr.id != currentUser.id
-              );
-              theRoom.player.forEach((usr) => console.log("player: ", usr.id));
-              const otherSocket = theRoom.player[0];
-              console.log("otherSOcket: ", otherSocket);
-              console.log(
-                "other socket username: ",
-                users.get(otherSocket.id)?.username
-              );
-              io.to(otherSocket.id).emit("opponent leave");
-            }
-          } else {
-            if (currentUser.roomNumber !== "") {
-              console.log(`user leaves: ${theRoom?.roomNumber}. Delete room`);
-              rooms.delete(currentUser.roomNumber);
-            }
-          }
-        }
-        console.log("deleted id signout : ", currentUser.id);
-        users.delete(currentUser?.id);
-      }
-    }
-    io.in(theDisconnectEmail).disconnectSockets();
-  });
-  socket.on("disconnect", () => {
-    const user = users.get(socket.id) as User;
-
-    if (!user) {
-      // users.delete(socket.id);
-      return;
-    }
-    console.log("a user disconnected :", user);
-
-    // make sure to room request after disconnect
-    // this is a function from SocketRoomLogic
-    // endRoomConnection(io, socket, users, rooms);
-    // socket.disconnect();
-    const theRoom = rooms.get(user.roomNumber);
-    if (theRoom !== undefined) {
-      // if the user disconnect when play with other player then notify that other player
-      if (theRoom?.player.length == 2) {
-        if (user.roomNumber !== "") {
-          console.log("user disconnect, notify his opponent in disconnect");
-          theRoom.readyStatus = 0;
-          theRoom.player = theRoom.player.filter((usr) => usr.id != user.id);
-          const otherSocket = theRoom.player[0].id;
-          console.log(otherSocket);
-          io.to(otherSocket).emit("opponent leave");
-        }
-      } else {
-        if (user.roomNumber !== "") {
-          console.log(`user leaves: ${theRoom?.roomNumber}. Delete room`);
-          rooms.delete(user.roomNumber);
-        }
-      }
-    }
-
-    // delete user
-    console.log("deleted id disconnect: ", socket.id);
-    users.delete(socket.id);
-  });
+  UserEvent(io, socket, users, rooms);
 });

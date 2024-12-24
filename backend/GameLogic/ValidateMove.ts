@@ -1,10 +1,6 @@
-import { MoveInfo } from "../type";
-import { fenToBoard, updateBoard } from "../util.ts";
-
-interface Result {
-  success: boolean;
-  err: string;
-}
+import { MoveInfo } from "../type.ts";
+import { fenToBoard, updateBoard } from "./boardLogic.ts";
+import { Status } from "../type.ts";
 enum faction {
   red = 0,
   black,
@@ -66,7 +62,7 @@ export function checkKing(fenBoard: string, pieceFaction: string): boolean {
   return false;
 }
 
-export function validateMove(currentState: MoveInfo): Result {
+export function validateMove(currentState: MoveInfo): Status {
   const board: string[][] = fenToBoard(currentState.board);
   const initialPosition: number[] = currentState.initialPosition;
   const destination: number[] = currentState.destination;
@@ -170,7 +166,7 @@ function validateKing(
   destination: number[],
   board: string[][],
   piece: PieceInfo
-): Result {
+): Status {
   if (board[destination[0]][destination[1]] !== "") {
     const destPiece: PieceInfo = constructPieceInfo(
       board[destination[0]][destination[1]]
@@ -208,7 +204,7 @@ function validateGuard(
   destination: number[],
   board: string[][],
   piece: PieceInfo
-): Result {
+): Status {
   if (
     !insidePalace(initialPosition, piece.faction) ||
     !insidePalace(destination, piece.faction)
@@ -229,7 +225,7 @@ function validateElephant(
   destination: number[],
   board: string[][],
   piece: PieceInfo
-): Result {
+): Status {
   //console.log("checking Elephant");
   const area: number = getArea(initialPosition, destination);
   //console.log("area ", area);
@@ -264,7 +260,7 @@ function validateCannon(
   destination: number[],
   board: string[][],
   piece: PieceInfo
-): Result {
+): Status {
   //console.log("checking cannon");
   const area: number = getArea(initialPosition, destination);
   //console.log("area ", area);
@@ -314,7 +310,7 @@ function validateHorse(
   destination: number[],
   board: string[][],
   piece: PieceInfo
-): Result {
+): Status {
   //("checking horse");
   const area: number = getArea(initialPosition, destination);
   //console.log("area ", area);
@@ -345,7 +341,7 @@ function validateRook(
   destination: number[],
   board: string[][],
   piece: PieceInfo
-): Result {
+): Status {
   //console.log("checking rook");
   const area: number = getArea(initialPosition, destination);
   //console.log("area ", area);
@@ -390,7 +386,7 @@ function validatePawn(
   destination: number[],
   board: string[][],
   piece: PieceInfo
-): Result {
+): Status {
   //console.log("checking pawn");
   const area: number = getArea(initialPosition, destination);
   //console.log("area ", area);
@@ -434,7 +430,7 @@ function flyingking(
   initialPosition: number[],
   destination: number[],
   board: string[][]
-): Result {
+): Status {
   if (destination[1] !== initialPosition[1]) {
     return { success: false, err: "INVALID king move" };
   }
