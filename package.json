@@ -1,0 +1,21 @@
+{
+  "name": "cs484project",
+  "version": "1.0.0",
+  "description": "### Creator: Manh Phan, Lei Chen",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
+    "start:frontend": "cd frontend && npm run dev",
+    "start:backend": "cd backend && npm run start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.2"
+  },
+  "dependencies": {
+    "concurrently": "^9.1.1"
+  }
+}

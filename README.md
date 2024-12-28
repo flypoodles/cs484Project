@@ -23,6 +23,13 @@
     npm run dev
 ```
 
+### To run Test
+
+```
+    cd to the root directory
+    npx playwright test
+```
+
 ---
 
 ### Technologies Used:
