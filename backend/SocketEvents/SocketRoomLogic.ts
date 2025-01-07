@@ -36,20 +36,22 @@ export function roomEvent(
   });
 
   socket.on("Join Room Request", (roomNumber: string) => {
-    const {
-      user: currentUser,
-      room: theRoom,
-      err: err,
-    } = retrieveInformation(users, rooms, socket);
+    const currentUser = users.get(socket.id);
 
-    if (theRoom === undefined || currentUser === undefined) {
-      socket.emit("Join Error", err);
+    if (currentUser === undefined) {
+      socket.emit("Join Error", "cannot find user when ready");
+      return;
+    }
+    const theRoom = rooms.get(roomNumber);
+    if (theRoom === undefined) {
+      socket.emit("Join Error", "room does not exit");
       return;
     }
 
     const status: Status = checkJoinRoomCondition(theRoom, socket);
     if (!status.success) {
       socket.emit("Join Error", status.err);
+      return;
     }
 
     JoinRoom(socket, roomNumber, theRoom, currentUser);

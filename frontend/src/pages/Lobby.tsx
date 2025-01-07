@@ -103,7 +103,9 @@ const Lobby: React.FC<LobbyProp> = ({ socket, setRoom, user }: LobbyProp) => {
         {user == null ? (
           <h1>Loading Lobby...</h1>
         ) : (
-          <h1>Welcome {user.username}!</h1>
+          <h1>
+            Welcome <span data-testid="username">{user.username}</span>!
+          </h1>
         )}
 
         {joinError && <h1 style={{ color: "red" }}> Join error: {getError}</h1>}
